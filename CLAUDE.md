@@ -22,6 +22,15 @@ You are assisting in the design and refinement of **The Coming Week**, a dark‑
 - Provide reasoning when proposing changes.
 - Maintain the ritualistic, quiet‑ominous tone of *The Coming Week*.
 
+## Project documentation
+
+- `docs/roadmap.md` — Build roadmap. Current stage tracked at the top.
+  Do not work ahead of the current stage.
+- `docs/architecture.md` — Target architecture for the MVP. All new
+  code should fit this structure.
+- `.claude/skills/review-stage/` — Skill that runs the stage review
+  gate. Invoke between stages before advancing.
+
 ---
 
 # DESIGN DOCUMENT

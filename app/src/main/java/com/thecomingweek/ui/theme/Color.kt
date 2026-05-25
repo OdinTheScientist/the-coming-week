@@ -1,4 +1,4 @@
-package com.example.thecommingweek.ui.theme
+package com.thecomingweek.ui.theme
 
 import androidx.compose.ui.graphics.Color
 

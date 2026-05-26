@@ -204,6 +204,7 @@ Each DAO follows a consistent shape:
 - One or two suspend getters for ad-hoc reads
 - One upsert
 - Scoped update queries where appropriate
+- Scoped delete queries for cleanup (e.g., expiring buffs)
 
 ## Repository layer
 

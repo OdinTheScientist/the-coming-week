@@ -1,6 +1,6 @@
 # The Coming Week — Build Roadmap
 
-**Current stage:** Stage 2 — NOT STARTED
+**Current stage:** Stage 3 — NOT STARTED
 
 The MVP is being built in numbered stages. Each stage is a single
 focused commit (or small handful), independently reviewable, and ends
@@ -21,7 +21,7 @@ until the review returns no blockers.
   added. `TheComingWeekApp` created and registered in manifest.
   Project builds, app launches.
 
-- [ ] **Stage 2 — Package skeleton & domain models**
+- [x] **Stage 2 — Package skeleton & domain models**
   Full package structure created. Domain enums and data classes added
   (Stat, Quest, Week, Boss, Biome, PlayerState, Buff). No logic yet.
 

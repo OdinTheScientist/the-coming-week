@@ -18,7 +18,9 @@ structure. Deviations require updating this document first.
 
 Three layers. Dependencies flow in one direction only.
 
-```ui  →  domain  →  data
+```
+ui  →  domain  →  data
+```
 
 - **`ui`** may depend on `domain`. Must not depend on `data`.
 - **`domain`** may depend on nothing in the project. Pure Kotlin. No
@@ -32,7 +34,10 @@ Violations to flag in review:
 - Repositories containing business logic (belongs in use cases).
 - Use cases returning Room entities instead of domain models.
 
-## Package structurecom.thecomingweek/
+## Package structure
+
+```
+com.thecomingweek/
 ├── TheComingWeekApp.kt              // @HiltAndroidApp
 ├── MainActivity.kt
 │
@@ -95,75 +100,97 @@ Violations to flag in review:
 │       └── biome/                   // BiomeScreen + VM
 │
 └── di/
-├── DatabaseModule.kt
-└── RepositoryModule.kt
+    ├── DatabaseModule.kt
+    └── RepositoryModule.kt
+```
 
 ## Domain models
 
 Pure Kotlin. These are the types use cases and ViewModels speak.
 
-```kotlinenum class StatType { STRENGTH, AGILITY, VITALITY, INTELLECT, CREATIVITY, WILLPOWER }data class Stat(
-val type: StatType,
-val value: Int,        // permanent
-val weeklyGain: Int    // resets each week
-)enum class QuestType { DAILY, SIDE, WEEKLY }
-enum class QuestStatus { AVAILABLE, COMPLETED, MISSED }data class Quest(
-val id: String,
-val title: String,
-val flavor: String,
-val stat: StatType,
-val type: QuestType,
-val xpReward: Int,
-val statGain: Int,
-val weight: Int,           // pool weighting
-val status: QuestStatus,
-val dayAssigned: Long?     // epoch day; null for side/weekly
-)data class Week(
-val id: Long,
-val weekNumber: Int,       // within current biome
-val statTheme: StatType,
-val biomeId: Long,
-val startEpochDay: Long,
-val endEpochDay: Long,
-val quotas: Map<StatType, Int>,
-val isResolved: Boolean
-)data class Boss(
-val id: Long,
-val weekId: Long,
-val biomeId: Long,
-val name: String,
-val flavor: String,
-val baseDifficulty: Int,
-val finalDifficulty: Int,  // computed at Sunday
-val defeated: Boolean?
-)data class Biome(
-val id: Long,
-val name: String,
-val flavor: String,
-val weekCount: Int,        // 6–8
-val startEpochDay: Long,
-val finalBossId: Long?
-)data class PlayerState(
-val runNumber: Int,
-val level: Int,
-val xp: Int,
-val currentBiomeId: Long?,
-val currentWeekId: Long?,
-val stats: List<Stat>
-)enum class BuffPolarity { BUFF, DEBUFF }
-enum class BuffSource {
-QUEST_COMPLETED, QUEST_MISSED,
-QUOTA_MET, QUOTA_MISSED,
-BOSS_WON, BOSS_LOST
-}data class Buff(
-val id: Long,
-val name: String,
-val polarity: BuffPolarity,
-val statAffected: StatType?,
-val modifier: Int,
-val expiresEpochDay: Long,
-val source: BuffSource
+```kotlin
+enum class StatType { STRENGTH, AGILITY, VITALITY, INTELLECT, CREATIVITY, WILLPOWER }
+
+data class Stat(
+    val type: StatType,
+    val value: Int,        // permanent
+    val weeklyGain: Int    // resets each week
 )
+
+enum class QuestType { DAILY, SIDE, WEEKLY }
+enum class QuestStatus { AVAILABLE, COMPLETED, MISSED }
+
+data class Quest(
+    val id: String,
+    val title: String,
+    val flavor: String,
+    val stat: StatType,
+    val type: QuestType,
+    val xpReward: Int,
+    val statGain: Int,
+    val weight: Int,           // pool weighting
+    val status: QuestStatus,
+    val dayAssigned: Long?     // epoch day; null for side/weekly
+)
+
+data class Week(
+    val id: Long,
+    val weekNumber: Int,       // within current biome
+    val statTheme: StatType,
+    val biomeId: Long,
+    val startEpochDay: Long,
+    val endEpochDay: Long,
+    val quotas: Map<StatType, Int>,
+    val isResolved: Boolean
+)
+
+data class Boss(
+    val id: Long,
+    val weekId: Long,
+    val biomeId: Long,
+    val name: String,
+    val flavor: String,
+    val baseDifficulty: Int,
+    val finalDifficulty: Int,  // computed at Sunday
+    val defeated: Boolean?
+)
+
+data class Biome(
+    val id: Long,
+    val name: String,
+    val flavor: String,
+    val weekCount: Int,        // 6–8
+    val startEpochDay: Long,
+    val finalBossId: Long?
+)
+
+data class PlayerState(
+    val runNumber: Int,
+    val level: Int,
+    val xp: Int,
+    val currentBiomeId: Long?,
+    val currentWeekId: Long?,
+    val stats: List<Stat>
+)
+
+enum class BuffPolarity { BUFF, DEBUFF }
+
+enum class BuffSource {
+    QUEST_COMPLETED, QUEST_MISSED,
+    QUOTA_MET, QUOTA_MISSED,
+    BOSS_WON, BOSS_LOST
+}
+
+data class Buff(
+    val id: Long,
+    val name: String,
+    val polarity: BuffPolarity,
+    val statAffected: StatType?,
+    val modifier: Int,
+    val expiresEpochDay: Long,
+    val source: BuffSource
+)
+```
 
 ## Room entities
 
@@ -205,17 +232,19 @@ One per screen. State exposed as a single immutable `UiState` data class
 via `StateFlow`. Events handled via public methods (`onQuestCompleted`,
 `onBossEnter`, etc.). No LiveData, no two-way binding.
 
-```kotlin@HiltViewModel
+```kotlin
+@HiltViewModel
 class HomeViewModel @Inject constructor(...) : ViewModel() {
-data class UiState(
-val today: List<Quest> = emptyList(),
-val activeBuffs: List<Buff> = emptyList(),
-val daysUntilTrial: Int = 0,
-val isLoading: Boolean = true
-)
-private val _state = MutableStateFlow(UiState())
-val state: StateFlow<UiState> = _state.asStateFlow()
+    data class UiState(
+        val today: List<Quest> = emptyList(),
+        val activeBuffs: List<Buff> = emptyList(),
+        val daysUntilTrial: Int = 0,
+        val isLoading: Boolean = true
+    )
+    private val _state = MutableStateFlow(UiState())
+    val state: StateFlow<UiState> = _state.asStateFlow()
 }
+```
 
 ## Navigation
 
@@ -224,16 +253,18 @@ Routes defined as a sealed class in `ui/navigation/Routes.kt`. Single
 Biome. Boss is reached from the Week screen on Sunday. QuestDetail is
 reached from Home.
 
-```kotlinsealed class Route(val path: String) {
-data object Home   : Route("home")
-data object Stats  : Route("stats")
-data object Week   : Route("week")
-data object Boss   : Route("boss")
-data object Biome  : Route("biome")
-data class QuestDetail(val id: String) : Route("quest/$id") {
-companion object { const val PATTERN = "quest/{id}" }
+```kotlin
+sealed class Route(val path: String) {
+    data object Home   : Route("home")
+    data object Stats  : Route("stats")
+    data object Week   : Route("week")
+    data object Boss   : Route("boss")
+    data object Biome  : Route("biome")
+    data class QuestDetail(val id: String) : Route("quest/$id") {
+        companion object { const val PATTERN = "quest/{id}" }
+    }
 }
-}
+```
 
 ## DI
 

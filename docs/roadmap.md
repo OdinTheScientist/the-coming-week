@@ -1,6 +1,6 @@
 # The Coming Week — Build Roadmap
 
-**Current stage:** Stage 1 — IN PROGRESS
+**Current stage:** Stage 2 — NOT STARTED
 
 The MVP is being built in numbered stages. Each stage is a single
 focused commit (or small handful), independently reviewable, and ends
@@ -16,7 +16,7 @@ until the review returns no blockers.
 - [x] **Stage 0 — Project initialized**
   Empty Activity template, git repo, first commit pushed.
 
-- [ ] **Stage 1 — Dependencies & Hilt application**
+- [x] **Stage 1 — Dependencies & Hilt application**
   Version catalog updated. Room, Hilt, Navigation Compose, Lifecycle
   added. `TheComingWeekApp` created and registered in manifest.
   Project builds, app launches.

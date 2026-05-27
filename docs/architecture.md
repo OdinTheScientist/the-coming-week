@@ -85,6 +85,7 @@ com.thecomingweek/
 │
 ├── ui/
 │   ├── navigation/
+│   │   ├── BottomBar.kt
 │   │   ├── NavGraph.kt
 │   │   └── Routes.kt
 │   ├── theme/

@@ -31,6 +31,63 @@ look painted in candlelight.
 - Void    #000000  sprite outlines
 - [+1 biome-specific accent, rotates per biome]
 
+### Full Material 3 token mapping
+
+Material 3 defines ~25 color tokens. The 5-color palette must cover
+all of them — no Material defaults may leak through. The constraint
+is the design.
+
+| Token | Color | Rationale |
+|---|---|---|
+| `primary` | Blood | Primary accent, the Trial |
+| `onPrimary` | Bone | Text on Blood |
+| `primaryContainer` | Blood | Same as primary — no separate container shade |
+| `onPrimaryContainer` | Bone | Text on primaryContainer |
+| `secondary` | Ember | Secondary accent, XP, candlelight |
+| `onSecondary` | Pitch | Text on Ember |
+| `secondaryContainer` | Ember | Same as secondary |
+| `onSecondaryContainer` | Pitch | Text on secondaryContainer |
+| `tertiary` | Ember | No third accent in the palette; reuse Ember |
+| `onTertiary` | Pitch | Text on tertiary |
+| `tertiaryContainer` | Ember | Same as tertiary |
+| `onTertiaryContainer` | Pitch | Text on tertiaryContainer |
+| `error` | Blood | Errors share the Trial's accent |
+| `onError` | Bone | Text on error |
+| `errorContainer` | Blood | Same as error |
+| `onErrorContainer` | Bone | Text on errorContainer |
+| `background` | Pitch | App background |
+| `onBackground` | Bone | Primary text on background |
+| `surface` | Ash | Cards, sheets, elevated surfaces |
+| `onSurface` | Bone | Text on surface |
+| `surfaceVariant` | Ash | Same as surface — no variant shade |
+| `onSurfaceVariant` | Bone | Text on surfaceVariant |
+| `surfaceContainer` | Ash | All container variants collapse to Ash |
+| `surfaceContainerLow` | Ash | Same |
+| `surfaceContainerLowest` | Pitch | Lowest = background |
+| `surfaceContainerHigh` | Ash | Same |
+| `surfaceContainerHighest` | Ash | Same |
+| `surfaceBright` | Ash | Same |
+| `surfaceDim` | Pitch | Dim = background |
+| `surfaceTint` | Pitch | No tonal elevation; nullify the tint |
+| `inverseSurface` | Bone | Inverted contexts: light surface |
+| `inverseOnSurface` | Pitch | Text on inverseSurface |
+| `inversePrimary` | Bone | Inverted primary |
+| `outline` | Bone at 40% opacity | Borders, dividers |
+| `outlineVariant` | Bone at 20% opacity | Secondary borders |
+| `scrim` | Pitch | Modal scrim |
+
+Design principle: where Material 3 distinguishes between a token and
+its "container" variant, both collapse to the same palette color.
+The design is flat — there are no tonal elevation shades.
+
+### System bars
+
+- Status bar: transparent over Pitch background; icons LIGHT (Bone-toned)
+- Navigation bar: transparent over Pitch background; icons LIGHT
+- Both must be set explicitly via WindowCompat, regardless of the
+  device's system dark mode setting. The app's appearance is locked
+  to dark.
+
 ## Typography
 - Display: VT323 (Google Fonts)
 - Body: JetBrains Mono (Google Fonts)

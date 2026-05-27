@@ -2,10 +2,8 @@ package com.thecomingweek.ui.theme
 
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
-
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+val Pitch = Color(0xFF0A0A0A)
+val Ash = Color(0xFF1C1A1A)
+val Bone = Color(0xFFE8E2D5)
+val Blood = Color(0xFF8B0A1A)
+val Ember = Color(0xFFC97A2B)

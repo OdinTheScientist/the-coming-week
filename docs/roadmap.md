@@ -1,6 +1,6 @@
 # The Coming Week — Build Roadmap
 
-**Current stage:** Stage 4 — NOT STARTED
+**Current stage:** Stage 5 — NOT STARTED
 
 The MVP is being built in numbered stages. Each stage is a single
 focused commit (or small handful), independently reviewable, and ends
@@ -28,7 +28,7 @@ until the review returns no blockers.
 - [x] **Stage 3 — Room layer**
   Entities, DAOs, `AppDatabase`, `Converters`. Room compiles cleanly.
 
-- [ ] **Stage 4 — DI modules & repository layer**
+- [x] **Stage 4 — DI modules & repository layer**
   `DatabaseModule`, repositories with entity↔domain mappers. Hilt
   graph resolves at runtime.
 

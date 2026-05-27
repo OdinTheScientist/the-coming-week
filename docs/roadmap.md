@@ -1,6 +1,6 @@
 # The Coming Week — Build Roadmap
 
-**Current stage:** Stage 5 — NOT STARTED
+**Current stage:** Stage 6 — NOT STARTED
 
 The MVP is being built in numbered stages. Each stage is a single
 focused commit (or small handful), independently reviewable, and ends
@@ -32,7 +32,7 @@ until the review returns no blockers.
   `DatabaseModule`, repositories with entity↔domain mappers. Hilt
   graph resolves at runtime.
 
-- [ ] **Stage 5 — Theme**
+- [x] **Stage 5 — Theme**
   Ritual palette, typography, Material 3 theme. Dark by default.
 
 - [ ] **Stage 6 — Navigation & placeholder screens**

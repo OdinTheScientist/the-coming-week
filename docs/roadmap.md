@@ -1,6 +1,6 @@
 # The Coming Week — Build Roadmap
 
-**Current stage:** Stage 9 — NOT STARTED
+**Current stage:** Stage 10 — NOT STARTED
 
 The MVP is being built in numbered stages. Each stage is a single
 focused commit (or small handful), independently reviewable, and ends
@@ -51,7 +51,7 @@ until the review returns no blockers.
   Quest-card UI, CompleteQuestUseCase, tap-to-complete, stat increment,
   buff grant. Gate: draw → see → complete → stat ticks up, on device.
 
-- [ ] **Stage 9 — Weekly loop**
+- [x] **Stage 9 — Weekly loop**
   Quotas, stat theme, week advancement. Sunday recognized.
 
 - [ ] **Stage 10 — Boss & biome scaffolding**

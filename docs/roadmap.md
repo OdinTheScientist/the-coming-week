@@ -1,6 +1,6 @@
 # The Coming Week — Build Roadmap
 
-**Current stage:** Stage 7 — NOT STARTED
+**Current stage:** Stage 8 — NOT STARTED
 
 The MVP is being built in numbered stages. Each stage is a single
 focused commit (or small handful), independently reviewable, and ends
@@ -39,13 +39,17 @@ until the review returns no blockers.
   `NavGraph`, `Routes`, six placeholder Composables. Bottom bar wired.
   All screens reachable.
 
-- [ ] **Stage 7 — First use case + seed data**
+- [x] **Stage 7 — First use case + seed data**
   `DrawDailyQuestsUseCase`. Small hardcoded starter quest pool seeded
   on first launch.
 
-- [ ] **Stage 8 — Home vertical slice**
-  Home screen draws 3 daily quests, displays them, tapping one marks
-  it complete, stat increments persist, buff appears.
+- [ ] **Stage 8a — Home wiring & state**
+  HomeViewModel, UiState, reactive quest flow, remove DB-open trigger.
+  Gate: 3 quests flow into state on first launch, no seed/read race.
+
+- [ ] **Stage 8b — Home UI & completion**
+  Quest-card UI, CompleteQuestUseCase, tap-to-complete, stat increment,
+  buff grant. Gate: draw → see → complete → stat ticks up, on device.
 
 - [ ] **Stage 9 — Weekly loop**
   Quotas, stat theme, week advancement. Sunday recognized.

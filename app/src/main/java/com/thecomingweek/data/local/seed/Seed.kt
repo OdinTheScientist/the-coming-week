@@ -20,6 +20,9 @@ object Seed {
         db.weekDao().upsert(week(today))
         db.playerStateDao().upsert(playerState())
         StatType.entries.forEach { db.statDao().upsert(stat(it)) }
+        // Load-bearing order: quests MUST be inserted last. HomeViewModel's draw
+        // trigger fires on the quest-table Flow re-emission, and only draws once
+        // the week exists — so the week must be committed before these inserts.
         quests().forEach { db.questDao().upsert(it) }
     }
 

@@ -16,21 +16,39 @@ structure. Deviations require updating this document first.
 
 ## Layering rules
 
-Three layers. Dependencies flow in one direction only.
+Three layers. The general dependency flow is:
 
 ```
 ui  →  domain  →  data
 ```
 
-- **`ui`** may depend on `domain`. Must not depend on `data`.
-- **`domain`** may depend on nothing in the project. Pure Kotlin. No
-  `androidx.*`, no `android.*`, no Room, no Compose.
-- **`data`** may depend on `domain` (for mapping entities → models).
-  Must not depend on `ui`.
+The `domain` layer has two parts with different rules:
+
+- **`ui`** may depend on `domain`. Must not depend on `data` (no DAO or
+  entity access from UI; go through a use case or repository).
+- **`domain/model/`** depends on **nothing in the project**. Pure Kotlin.
+  No `androidx.*`, no `android.*`, no Room, no Compose. These are the
+  types every other layer speaks.
+- **`domain/usecase/`** may depend on `domain/model/` and on data-layer
+  repositories (`data/repository/`). Repository interfaces are deferred
+  (see "DI" below), so use cases inject the **concrete** repository
+  classes directly. Still pure Kotlin otherwise: no `androidx.*`,
+  no `android.*`, no Room types, no Compose. A use case must speak domain
+  models, never Room entities.
+- **`data`** may depend on `domain` (repositories map entities → domain
+  models; the seed builds entities from domain enums). Must not depend
+  on `ui`.
+
+So the precise dependency picture is: `ui → domain/usecase → data/repository`,
+with `domain/model` sitting underneath as a shared, dependency-free core
+that all three layers reference.
 
 Violations to flag in review:
-- UI code touching DAOs directly (must go through a repository).
-- Domain models importing Android or Room types.
+- UI code touching DAOs or entities directly (must go through a use case
+  or repository).
+- `domain/model/` importing anything from `data`, `ui`, Android, or Room.
+- A use case importing Room entities or DAOs (it may import repositories,
+  but must consume and return domain models only).
 - Repositories containing business logic (belongs in use cases).
 - Use cases returning Room entities instead of domain models.
 
@@ -206,6 +224,24 @@ Each DAO follows a consistent shape:
 - One upsert
 - Scoped update queries where appropriate
 - Scoped delete queries for cleanup (e.g., expiring buffs)
+
+### Quest pool vs. drawn instances
+
+The `quests` table holds two kinds of rows that share one schema:
+
+- **Pool templates** — the hardcoded starter quests. `dayAssigned = null`
+  and a bare slug ID (`"str_01"`). These are never mutated; they are the
+  source the daily draw selects from.
+- **Drawn instances** — copies created by `DrawDailyQuestsUseCase` for a
+  specific day. `dayAssigned` is set, and the ID is suffixed with the
+  epoch day: **`"{poolId}_{epochDay}"`** (e.g., `"str_01_20601"`). The
+  suffix keeps the template intact for reuse and makes each day's draw
+  uniquely keyed.
+
+`QuestRepository.pool()` returns *all* rows; callers must filter
+(`type == DAILY && dayAssigned == null`) to get templates only. Any code
+that traces a drawn quest back to its template must respect the
+`{poolId}_{epochDay}` ID convention.
 
 ## Repository layer
 

@@ -2,6 +2,8 @@ package com.thecomingweek.di
 
 import android.content.Context
 import androidx.room.Room
+import androidx.room.RoomDatabase
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.thecomingweek.data.local.AppDatabase
 import com.thecomingweek.data.local.dao.BiomeDao
 import com.thecomingweek.data.local.dao.BossDao
@@ -10,11 +12,15 @@ import com.thecomingweek.data.local.dao.PlayerStateDao
 import com.thecomingweek.data.local.dao.QuestDao
 import com.thecomingweek.data.local.dao.StatDao
 import com.thecomingweek.data.local.dao.WeekDao
+import com.thecomingweek.data.local.seed.Seed
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import javax.inject.Singleton
 
 @Module
@@ -23,8 +29,20 @@ object DatabaseModule {
 
     @Provides
     @Singleton
-    fun provideDatabase(@ApplicationContext context: Context): AppDatabase =
-        Room.databaseBuilder(context, AppDatabase::class.java, "coming_week.db").build()
+    fun provideDatabase(@ApplicationContext context: Context): AppDatabase {
+        lateinit var instance: AppDatabase
+        instance = Room.databaseBuilder(context, AppDatabase::class.java, "coming_week.db")
+            .addCallback(object : RoomDatabase.Callback() {
+                override fun onCreate(db: SupportSQLiteDatabase) {
+                    super.onCreate(db)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        Seed.populate(instance)
+                    }
+                }
+            })
+            .build()
+        return instance
+    }
 
     @Provides
     fun provideQuestDao(db: AppDatabase): QuestDao = db.questDao()

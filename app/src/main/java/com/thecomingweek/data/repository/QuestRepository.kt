@@ -19,6 +19,9 @@ class QuestRepository @Inject constructor(
             entities.filter { it.dayAssigned == epochDay }.map { it.toDomain() }
         }
 
+    fun observeAll(): Flow<List<Quest>> =
+        questDao.observeAll().map { entities -> entities.map { it.toDomain() } }
+
     suspend fun pool(): List<Quest> =
         questDao.observeAll().first().map { it.toDomain() }
 

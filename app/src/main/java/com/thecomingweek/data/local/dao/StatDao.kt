@@ -18,4 +18,7 @@ interface StatDao {
 
     @Upsert
     suspend fun upsert(stat: StatEntity)
+
+    @Query("UPDATE stats SET weeklyGain = 0")
+    suspend fun resetWeeklyGains()
 }

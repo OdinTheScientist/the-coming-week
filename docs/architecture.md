@@ -264,6 +264,13 @@ This is where game logic lives:
 
 Use cases are injected into ViewModels via Hilt.
 
+> **Temporary trigger (MVP):** `AdvanceWeekUseCase` is complete and correct,
+> but in the fiction the week turns only when Sunday's Trial passes — there is
+> no in-fiction reason for the player to advance it manually. Until the Trial
+> wires advancement (Stage 10), it is fired by a hidden long-press on the Week
+> screen's title bar, with a plain-text debug confirmation. The mechanism is
+> final; only the trigger evolves.
+
 ## ViewModels
 
 One per screen. State exposed as a single immutable `UiState` data class
@@ -331,3 +338,18 @@ Defined in full in `CLAUDE.md`. Summary for quick reference:
 quiet, ominous, ritualistic, monk-like, gothic spiritual. The week
 always comes. Avoid generic UX copy, exclamation marks, and cheerful
 encouragement.
+
+
+## Biome cadence
+
+- Biome length: 6 weeks (~42 days), fixed for MVP
+- Rationale: past the habit-formation midpoint for medium-complexity
+  behaviors; long enough for a meaningful arc, short enough to stay
+  fresh; yields ~8 biomes/year, balancing content burden against
+  repetition
+- Per biome: 1 common enemy per stat (6 sprites) + 1 final biome boss
+  (1 sprite) = 7 sprite assets minimum
+- Weekly bosses reuse the per-stat enemy at scaled difficulty, not
+  unique sprites per week
+- Content roadmap target: 6 biomes total → ~36 weeks of unique
+  experience before any biome reappears

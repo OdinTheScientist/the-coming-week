@@ -29,4 +29,9 @@ class PlayerStateRepository @Inject constructor(
         val current = playerStateDao.get() ?: return
         playerStateDao.upsert(current.copy(xp = current.xp + amount))
     }
+
+    suspend fun setCurrentWeek(weekId: Long) {
+        val current = playerStateDao.get() ?: return
+        playerStateDao.upsert(current.copy(currentWeekId = weekId))
+    }
 }

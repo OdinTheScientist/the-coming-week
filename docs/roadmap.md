@@ -60,6 +60,26 @@ until the review returns no blockers.
 
 ---
 
+## Deferred / post-MVP
+
+Known, bounded limitations with known fixes. Tracked here so they are
+not re-diagnosed as bugs later.
+
+- **Sunday-aligned week advancement.** Advancement is currently triggered
+  manually (a hidden dev long-press on the Week screen title; see
+  `AdvanceWeekUseCase`). Automatic, Trial-driven advancement on Sunday is
+  deferred.
+
+- **Early-advance quota-credit lag.** Quota credit (NOT stats, XP, or buffs)
+  lags for quests completed between an early manual advance and the new week's
+  start. The completion correctly credits Week N's range, but the Week screen
+  only displays Week N+1's quotas after advance. Stats, XP, and buffs are
+  unaffected. Resolves automatically when the calendar reaches the new week's
+  `startEpochDay`, or with Sunday-aligned advancement (deferred to post-MVP).
+  No data loss; bounded display lag only.
+
+---
+
 ## Stage completion protocol
 
 When a stage is complete:

@@ -24,4 +24,6 @@ class StatRepository @Inject constructor(
         val current = statDao.getByType(type) ?: StatEntity(type = type, value = 0, weeklyGain = 0)
         statDao.upsert(current.copy(value = current.value + delta, weeklyGain = current.weeklyGain + delta))
     }
+
+    suspend fun resetWeeklyGains() = statDao.resetWeeklyGains()
 }

@@ -20,7 +20,15 @@ class BuffRepository @Inject constructor(
             entities.filter { it.expiresEpochDay > epochDay }.map { it.toDomain() }
         }
 
-    // TODO: Stage 8 — refine buff creation (name, modifier, polarity logic)
+    // TODO: buff lifecycle is unimplemented and currently BROKEN. Callers pass
+    // the current epochDay as `expiresEpochDay`, but `observeActive` filters for
+    // `expiresEpochDay > epochDay` — so every granted buff is already expired the
+    // moment it is written. Buffs are dead on arrival and never surface as active.
+    // Duration is not modeled at all, and `modifier` is a hardcoded 1 that does
+    // not yet mean anything. Before buffs are displayed or consumed anywhere
+    // (Home's activeBuffs list, and combat resolution at Stage 10 — daily battle
+    // and the weekly boss), the buff lifecycle needs a design pass: how long a
+    // buff lasts, what each buff actually modifies, and stacking rules.
     suspend fun grant(source: BuffSource, stat: StatType, expiresEpochDay: Long) {
         val polarity = when (source) {
             BuffSource.QUEST_COMPLETED, BuffSource.QUOTA_MET, BuffSource.BOSS_WON -> BuffPolarity.BUFF

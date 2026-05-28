@@ -1,6 +1,5 @@
 package com.thecomingweek.ui.screen.home
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.thecomingweek.data.repository.BuffRepository
@@ -8,6 +7,7 @@ import com.thecomingweek.data.repository.QuestRepository
 import com.thecomingweek.data.repository.WeekRepository
 import com.thecomingweek.domain.model.Buff
 import com.thecomingweek.domain.model.Quest
+import com.thecomingweek.domain.usecase.CompleteQuestUseCase
 import com.thecomingweek.domain.usecase.DrawDailyQuestsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.SharingStarted
@@ -16,6 +16,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
 import javax.inject.Inject
@@ -23,6 +24,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val drawDailyQuests: DrawDailyQuestsUseCase,
+    private val completeQuest: CompleteQuestUseCase,
     private val questRepository: QuestRepository,
     private val weekRepository: WeekRepository,
     private val buffRepository: BuffRepository,
@@ -54,15 +56,6 @@ class HomeViewModel @Inject constructor(
                 isLoading = today.isEmpty(),
             )
         }
-            // TODO(Stage 8b): remove debug logging
-            .onEach { s ->
-                Log.d(
-                    TAG,
-                    "state: quests=${s.today.size} ${s.today.map { it.title }} " +
-                        "buffs=${s.activeBuffs.size} daysUntilTrial=${s.daysUntilTrial} " +
-                        "isLoading=${s.isLoading}",
-                )
-            }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(5_000),
@@ -71,6 +64,15 @@ class HomeViewModel @Inject constructor(
 
     init {
         triggerDailyDraw()
+    }
+
+    // Completes a quest, then lets the reactive pipeline carry the change to the
+    // UI: the use case persists (status, stat, XP, buff), observeToday re-emits
+    // with the quest now COMPLETED, and state recomposes. No manual mutation.
+    fun onQuestCompleted(quest: Quest) {
+        viewModelScope.launch {
+            completeQuest(quest, epochDay)
+        }
     }
 
     // Reactive draw trigger. Observes today's quests independently of the UI
@@ -87,8 +89,6 @@ class HomeViewModel @Inject constructor(
                     val week = weekRepository.current()
                     if (week != null) {
                         drawAttempted = true
-                        // TODO(Stage 8b): remove debug logging
-                        Log.d(TAG, "drawing daily quests for epochDay=$epochDay")
                         drawDailyQuests(epochDay)
                     }
                 }
@@ -100,9 +100,5 @@ class HomeViewModel @Inject constructor(
     private fun daysUntilTrial(epochDay: Long): Int {
         val today = LocalDate.ofEpochDay(epochDay).dayOfWeek
         return (DayOfWeek.SUNDAY.value - today.value + 7) % 7
-    }
-
-    private companion object {
-        const val TAG = "HomeVM"
     }
 }

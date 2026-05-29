@@ -5,6 +5,7 @@ import com.thecomingweek.data.repository.StatRepository
 import com.thecomingweek.data.repository.WeekRepository
 import com.thecomingweek.domain.model.StatType
 import com.thecomingweek.domain.model.Week
+import com.thecomingweek.domain.usecase.internal.quotasForTheme
 import javax.inject.Inject
 
 class AdvanceWeekUseCase @Inject constructor(
@@ -27,14 +28,17 @@ class AdvanceWeekUseCase @Inject constructor(
         // week truly ends therefore dates the new week in the future, causing a
         // bounded quota-credit lag (stats/XP/buffs are unaffected). Sunday-aligned
         // advancement is the fix — see docs/roadmap.md "Deferred / post-MVP".
+        // Quotas are regenerated from the new theme (not carried over), so the
+        // week's demand structure always follows the stat it bends toward.
+        val theme = nextTheme(current.statTheme)
         val next = Week(
             id = current.id + 1,
             weekNumber = current.weekNumber + 1,
-            statTheme = nextTheme(current.statTheme),
+            statTheme = theme,
             biomeId = current.biomeId,
             startEpochDay = current.endEpochDay + 1,
             endEpochDay = current.endEpochDay + 7,
-            quotas = current.quotas,
+            quotas = quotasForTheme(theme),
             isResolved = false,
         )
 

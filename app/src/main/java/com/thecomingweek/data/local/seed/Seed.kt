@@ -5,10 +5,12 @@ import com.thecomingweek.data.local.entity.BiomeEntity
 import com.thecomingweek.data.local.entity.PlayerStateEntity
 import com.thecomingweek.data.local.entity.QuestEntity
 import com.thecomingweek.data.local.entity.StatEntity
-import com.thecomingweek.data.local.entity.WeekEntity
+import com.thecomingweek.data.mapper.toEntity
 import com.thecomingweek.domain.model.QuestStatus
 import com.thecomingweek.domain.model.QuestType
 import com.thecomingweek.domain.model.StatType
+import com.thecomingweek.domain.model.Week
+import com.thecomingweek.domain.usecase.internal.quotasForTheme
 import java.time.LocalDate
 
 object Seed {
@@ -35,16 +37,19 @@ object Seed {
         finalBossId = null
     )
 
-    private fun week(startEpochDay: Long) = WeekEntity(
+    // Built as a domain Week and mapped to its entity so quotas are derived from
+    // the theme by the one shared rule (quotasForTheme) and serialised by the one
+    // shared mapper — no hand-written quota JSON to drift from advancement.
+    private fun week(startEpochDay: Long) = Week(
         id = 1L,
         weekNumber = 1,
         statTheme = StatType.STRENGTH,
         biomeId = 1L,
         startEpochDay = startEpochDay,
         endEpochDay = startEpochDay + 6,
-        quotasJson = """{"STRENGTH":3,"AGILITY":1,"VITALITY":2,"INTELLECT":1,"CREATIVITY":1,"WILLPOWER":1}""",
-        isResolved = false
-    )
+        quotas = quotasForTheme(StatType.STRENGTH),
+        isResolved = false,
+    ).toEntity()
 
     private fun playerState() = PlayerStateEntity(
         runNumber = 1,

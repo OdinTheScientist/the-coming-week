@@ -7,6 +7,7 @@ import com.thecomingweek.data.repository.WeekRepository
 import com.thecomingweek.domain.model.Biome
 import com.thecomingweek.domain.model.StatType
 import com.thecomingweek.domain.model.Week
+import com.thecomingweek.domain.usecase.internal.quotasForTheme
 import javax.inject.Inject
 
 // The roguelite reset, run when a biome's final Trial passes. Its own class
@@ -51,15 +52,17 @@ class ResetRunUseCase @Inject constructor(
         )
 
         // Week 1 of the new biome. Theme returns to the start of the rotation —
-        // a new descent begins where the cycle begins.
+        // a new descent begins where the cycle begins. Quotas come from the
+        // theme (same rule as Seed and AdvanceWeekUseCase), not the old week.
+        val theme = StatType.entries.first()
         val newWeek = Week(
             id = finalWeek.id + 1,
             weekNumber = 1,
-            statTheme = StatType.entries.first(),
+            statTheme = theme,
             biomeId = newBiomeId,
             startEpochDay = newStart,
             endEpochDay = newStart + 6,
-            quotas = finalWeek.quotas,
+            quotas = quotasForTheme(theme),
             isResolved = false,
         )
         weekRepository.upsert(newWeek)

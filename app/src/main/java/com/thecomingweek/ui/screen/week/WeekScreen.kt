@@ -142,8 +142,12 @@ private fun WeekScreenContent(
 
             Spacer(Modifier.weight(1f))
 
+            // In the fiction the Trial arrives on Sunday. Until Sunday-gating is
+            // built (TODO post-MVP), the player brings it themselves — so the
+            // entry is named for that act. This is now the canonical path that
+            // turns the week: tapping through resolves the Trial, which advances.
             Text(
-                text = "Face the Trial.",
+                text = "Bring the Trial.",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,

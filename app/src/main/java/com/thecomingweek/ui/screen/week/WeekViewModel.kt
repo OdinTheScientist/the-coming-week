@@ -68,9 +68,15 @@ class WeekViewModel @Inject constructor(
     private val _events = Channel<String>(Channel.BUFFERED)
     val events = _events.receiveAsFlow()
 
+    // The canonical advance is now the Trial (ResolveWeeklyBossUseCase calls
+    // AdvanceWeekUseCase / ResetRunUseCase). This hidden long-press is retained
+    // as a DEV TOOL: it advances the week directly, skipping the Trial, so weeks
+    // can be marched forward for testing (e.g. reaching a biome boundary) without
+    // resolving six bosses. It calls AdvanceWeekUseCase only — it deliberately
+    // does NOT reset the run at the biome boundary, so to test the reset, face
+    // the final week's Trial rather than long-pressing past it.
     fun onAdvanceWeek() {
         viewModelScope.launch {
-            // TODO(Stage 10): replace with post-Trial-resolution advancement
             advanceWeek()
             weekRepository.current()?.let { week ->
                 _events.send("Advanced to week ${week.weekNumber}")

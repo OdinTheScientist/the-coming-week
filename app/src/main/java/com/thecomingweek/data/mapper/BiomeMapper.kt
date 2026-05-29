@@ -9,7 +9,8 @@ fun BiomeEntity.toDomain(): Biome = Biome(
     flavor = flavor,
     weekCount = weekCount,
     startEpochDay = startEpochDay,
-    finalBossId = finalBossId
+    finalBossId = finalBossId,
+    isCompleted = isCompleted
 )
 
 fun Biome.toEntity(): BiomeEntity = BiomeEntity(
@@ -18,5 +19,6 @@ fun Biome.toEntity(): BiomeEntity = BiomeEntity(
     flavor = flavor,
     weekCount = weekCount,
     startEpochDay = startEpochDay,
-    finalBossId = finalBossId
+    finalBossId = finalBossId,
+    isCompleted = isCompleted
 )

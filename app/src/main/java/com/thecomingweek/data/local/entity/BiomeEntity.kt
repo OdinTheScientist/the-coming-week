@@ -10,5 +10,6 @@ data class BiomeEntity(
     val flavor: String,
     val weekCount: Int,
     val startEpochDay: Long,
-    val finalBossId: Long?
+    val finalBossId: Long?,
+    val isCompleted: Boolean = false
 )

@@ -17,4 +17,7 @@ interface BiomeDao {
 
     @Upsert
     suspend fun upsert(biome: BiomeEntity)
+
+    @Query("UPDATE biomes SET isCompleted = :completed WHERE id = :id")
+    suspend fun updateCompleted(id: Long, completed: Boolean)
 }

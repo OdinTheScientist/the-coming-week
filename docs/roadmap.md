@@ -78,6 +78,17 @@ not re-diagnosed as bugs later.
   `startEpochDay`, or with Sunday-aligned advancement (deferred to post-MVP).
   No data loss; bounded display lag only.
 
+- **Trial balance.** Player score uses the sum of persistent stats; difficulty
+  uses sum/6 (statAverage). After a few runs, stat accumulation tilts the player
+  score much faster than difficulty rises, so the Trial becomes trivially
+  winnable for long-term players. A balance pass is needed before public
+  release; for personal-MVP use, this only manifests after several biomes.
+
+- **Room migrations.** The database currently uses
+  `fallbackToDestructiveMigration` — schema changes wipe the DB. Acceptable for
+  the MVP (no real user data), but proper migrations are needed before any
+  shipped release with real user data.
+
 ---
 
 ## Stage completion protocol

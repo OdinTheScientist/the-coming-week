@@ -29,7 +29,11 @@ class BuffRepository @Inject constructor(
     // (Home's activeBuffs list, and combat resolution at Stage 10 — daily battle
     // and the weekly boss), the buff lifecycle needs a design pass: how long a
     // buff lasts, what each buff actually modifies, and stacking rules.
-    suspend fun grant(source: BuffSource, stat: StatType, expiresEpochDay: Long) {
+    // Returns the granted Buff so callers that want to surface it (e.g. the
+    // Trial's TrialResult) can, without rebuilding it. The lifecycle is still
+    // BROKEN per the note above — returning the value does not change that; the
+    // buff is written already-expired and will not show as active.
+    suspend fun grant(source: BuffSource, stat: StatType, expiresEpochDay: Long): Buff {
         val polarity = when (source) {
             BuffSource.QUEST_COMPLETED, BuffSource.QUOTA_MET, BuffSource.BOSS_WON -> BuffPolarity.BUFF
             BuffSource.QUEST_MISSED, BuffSource.QUOTA_MISSED, BuffSource.BOSS_LOST -> BuffPolarity.DEBUFF
@@ -44,5 +48,6 @@ class BuffRepository @Inject constructor(
             source = source
         )
         buffDao.upsert(buff.toEntity())
+        return buff
     }
 }

@@ -40,6 +40,17 @@ object DatabaseModule {
                     }
                 }
             })
+            // Stage 10 bumped the schema to v2 (Biome.isCompleted). No real
+            // migration is written: the MVP carries no production data worth
+            // preserving, so a version bump simply rebuilds the DB and re-seeds
+            // via onCreate. Authoring real migrations is a post-launch concern.
+            //
+            // TODO(post-MVP): fallbackToDestructiveMigration WIPES the entire
+            // database on every schema change. This is acceptable for the MVP
+            // (no real user data), but MUST be replaced with proper Room
+            // migrations before any 1.0 / shipped release — otherwise a schema
+            // change would erase a real player's stats, runs, and progress.
+            .fallbackToDestructiveMigration()
             .build()
         return instance
     }

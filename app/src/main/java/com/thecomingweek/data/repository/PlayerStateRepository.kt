@@ -34,4 +34,18 @@ class PlayerStateRepository @Inject constructor(
         val current = playerStateDao.get() ?: return
         playerStateDao.upsert(current.copy(currentWeekId = weekId))
     }
+
+    // The roguelite reset. Increments the run counter and re-points the player
+    // at the new biome's first week. Stats are NOT touched here — they live in
+    // their own table and persist across runs by design (see ResetRunUseCase).
+    suspend fun startNewRun(biomeId: Long, weekId: Long) {
+        val current = playerStateDao.get() ?: return
+        playerStateDao.upsert(
+            current.copy(
+                runNumber = current.runNumber + 1,
+                currentBiomeId = biomeId,
+                currentWeekId = weekId,
+            )
+        )
+    }
 }

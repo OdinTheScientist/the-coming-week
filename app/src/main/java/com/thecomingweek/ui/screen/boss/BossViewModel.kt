@@ -9,6 +9,7 @@ import com.thecomingweek.domain.model.TrialResult
 import com.thecomingweek.domain.usecase.CalculateBossDifficultyUseCase
 import com.thecomingweek.domain.usecase.CheckWeeklyQuotasUseCase
 import com.thecomingweek.domain.usecase.ResolveWeeklyBossUseCase
+import com.thecomingweek.domain.usecase.internal.WARDEN_ART
 import com.thecomingweek.domain.usecase.internal.placeholderBoss
 import com.thecomingweek.domain.usecase.internal.playerScore
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,6 +31,10 @@ class BossViewModel @Inject constructor(
 
     data class UiState(
         val boss: Boss? = null,
+        // The boss's ASCII art. Routed through state (not read in the screen) so
+        // that when authored bosses gain their own art field post-MVP, only this
+        // assignment changes — boss.art instead of the placeholder constant.
+        val bossArt: String = "",
         val finalDifficulty: Int = 0,
         val playerScore: Int = 0,
         // Null until the player faces the Trial; then carries the outcome.
@@ -58,6 +63,7 @@ class BossViewModel @Inject constructor(
             _state.update {
                 it.copy(
                     boss = boss,
+                    bossArt = WARDEN_ART,
                     finalDifficulty = difficulty,
                     playerScore = playerScore(statSum, quotasMet),
                     isLoading = false,

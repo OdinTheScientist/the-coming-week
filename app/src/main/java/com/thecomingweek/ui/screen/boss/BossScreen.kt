@@ -10,17 +10,23 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -37,6 +43,7 @@ fun BossScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     BossScreenContent(
         boss = state.boss,
+        bossArt = state.bossArt,
         finalDifficulty = state.finalDifficulty,
         playerScore = state.playerScore,
         result = state.result,
@@ -51,6 +58,7 @@ fun BossScreen(
 @Composable
 private fun BossScreenContent(
     boss: Boss?,
+    bossArt: String,
     finalDifficulty: Int,
     playerScore: Int,
     result: TrialResult?,
@@ -81,7 +89,7 @@ private fun BossScreenContent(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Spacer(Modifier.height(48.dp))
+            Spacer(Modifier.height(24.dp))
 
             if (isLoading) {
                 // Nothing to announce yet. Silence suits the moment.
@@ -97,6 +105,10 @@ private fun BossScreenContent(
                 )
                 return@Column
             }
+
+            WardenArt(art = bossArt)
+
+            Spacer(Modifier.height(16.dp))
 
             Text(
                 text = boss.name,
@@ -114,7 +126,7 @@ private fun BossScreenContent(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Spacer(Modifier.height(40.dp))
+            Spacer(Modifier.height(28.dp))
 
             Reckoning(label = "The Trial weighs", value = finalDifficulty)
             Spacer(Modifier.height(8.dp))
@@ -145,6 +157,44 @@ private fun BossScreenContent(
 // player is left to sit with it.
 private fun outcomeLine(defeated: Boolean): String =
     if (defeated) "The Trial passes. You remain." else "The Trial breaks you. The week comes again."
+
+// The Warden, drawn in ASCII. Monospaced (JetBrains Mono, via bodyLarge) and
+// centre-aligned so the equal-width lines stack into a square silhouette, with
+// a tightened lineHeight so it reads as one shape rather than loose rows. The
+// two '=' eyes — the only '='s in the art — are tinted Blood as a focal point.
+// The block is given a reserved minimum height (~9 lines) so the panel below it
+// does not jump if the art's line count changes later.
+@Composable
+private fun WardenArt(art: String, modifier: Modifier = Modifier) {
+    val blood = MaterialTheme.colorScheme.primary
+    val annotated = remember(art, blood) {
+        buildAnnotatedString {
+            art.forEach { ch ->
+                if (ch == '=') {
+                    withStyle(SpanStyle(color = blood)) { append(ch) }
+                } else {
+                    append(ch)
+                }
+            }
+        }
+    }
+    Box(
+        modifier = modifier
+            .fillMaxWidth()
+            .heightIn(min = 280.dp),
+        contentAlignment = Alignment.Center,
+    ) {
+        Text(
+            text = annotated,
+            style = MaterialTheme.typography.bodyLarge.copy(
+                fontSize = 28.sp,
+                lineHeight = 30.sp,
+            ),
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+        )
+    }
+}
 
 @Composable
 private fun Reckoning(label: String, value: Int) {
@@ -192,6 +242,7 @@ private fun BossScreenPreview() {
                 finalDifficulty = 13,
                 defeated = null,
             ),
+            bossArt = com.thecomingweek.domain.usecase.internal.WARDEN_ART,
             finalDifficulty = 13,
             playerScore = 24,
             result = null,

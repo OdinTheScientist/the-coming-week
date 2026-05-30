@@ -11,6 +11,7 @@ import com.thecomingweek.ui.screen.biome.BiomeScreen
 import com.thecomingweek.ui.screen.boss.BossScreen
 import com.thecomingweek.ui.screen.home.HomeScreen
 import com.thecomingweek.ui.screen.quest.QuestDetailScreen
+import com.thecomingweek.ui.screen.splash.SplashScreen
 import com.thecomingweek.ui.screen.stats.StatsScreen
 import com.thecomingweek.ui.screen.week.WeekScreen
 
@@ -18,9 +19,16 @@ import com.thecomingweek.ui.screen.week.WeekScreen
 fun TheComingWeekNavGraph(navController: NavHostController, modifier: Modifier = Modifier) {
     NavHost(
         navController = navController,
-        startDestination = Route.Home.path,
+        startDestination = Route.Splash.path,
         modifier = modifier,
     ) {
+        composable(Route.Splash.path) {
+            SplashScreen(onTimeout = {
+                navController.navigate(Route.Home.path) {
+                    popUpTo(Route.Splash.path) { inclusive = true }
+                }
+            })
+        }
         composable(Route.Home.path) { HomeScreen(navController) }
         composable(Route.Week.path) { WeekScreen(navController) }
         composable(Route.Stats.path) { StatsScreen(navController) }

@@ -17,7 +17,7 @@ fun TheComingWeekBottomBar(navController: NavHostController) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
 
-    if (currentRoute == Route.QuestDetail.PATTERN || currentRoute == Route.Boss.path) return
+    if (currentRoute == Route.Splash.path || currentRoute == Route.QuestDetail.PATTERN || currentRoute == Route.Boss.path) return
 
     val tabs = listOf(
         Route.Home to "Home",

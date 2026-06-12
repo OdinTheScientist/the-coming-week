@@ -35,6 +35,18 @@ class PlayerStateRepository @Inject constructor(
         playerStateDao.upsert(current.copy(currentWeekId = weekId))
     }
 
+    // Persists HP after a daily battle (and the boss's wounded-state override).
+    suspend fun setCurrentHp(hp: Int) {
+        val current = playerStateDao.get() ?: return
+        playerStateDao.upsert(current.copy(currentHp = hp))
+    }
+
+    // The week's renewal: a fresh body for a fresh descent.
+    suspend fun resetHp() {
+        val current = playerStateDao.get() ?: return
+        playerStateDao.upsert(current.copy(currentHp = current.maxHp))
+    }
+
     // The roguelite reset. Increments the run counter and re-points the player
     // at the new biome's first week. Stats are NOT touched here — they live in
     // their own table and persist across runs by design (see ResetRunUseCase).

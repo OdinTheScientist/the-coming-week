@@ -196,3 +196,37 @@ Claude should:
 - Ask questions when needed
 
 ---
+
+## 11. Workflow & Tool Roles
+
+### Tool Division of Responsibility
+
+| Tool | Role | When to Use |
+|------|------|-------------|
+| **Gemini** | Upstream content generation | Bulk drafts, brainstorming, raw flavor text |
+| **Claude (claude.ai project)** | Design judgment & specs | Mechanics, architecture, stage planning |
+| **Claude Code** | Implementation | Execution against a clear spec |
+
+### Gemini Handoff Convention
+
+When Claude identifies a task better suited for Gemini, it will:
+1. **Pause** and not attempt the task itself
+2. **Output a ready-to-use Gemini prompt** clearly labeled `GEMINI PROMPT:`
+3. **Wait** for the result to be pasted back or a file to be referenced
+
+Gemini output should be treated as **raw material** — it has no knowledge of system mechanics, data model, or tone constraints. Claude or Claude Code refines it before it enters the codebase or design docs.
+
+### Gemini Task Triggers
+
+- Generating 10+ quests, flavor texts, or boss descriptions in one pass
+- First-pass brainstorming with no system constraints (biome names, enemy concepts, etc.)
+- Summarizing or reformatting documents
+- Any task where volume matters more than precision
+
+### What Never Goes to Gemini
+
+- Mechanics decisions
+- Data model design
+- Anything requiring knowledge of the existing codebase
+- Content review and refinement (that happens here after the paste-back)
+- Stage specs before Claude Code implementation

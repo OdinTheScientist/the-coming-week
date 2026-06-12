@@ -10,5 +10,7 @@ data class PlayerStateEntity(
     val level: Int,
     val xp: Int,
     val currentBiomeId: Long?,
-    val currentWeekId: Long?
+    val currentWeekId: Long?,
+    val currentHp: Int,
+    val maxHp: Int
 )

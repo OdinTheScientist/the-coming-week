@@ -2,7 +2,9 @@ package com.thecomingweek.ui.screen.home
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.thecomingweek.data.repository.BattleRepository
 import com.thecomingweek.data.repository.BuffRepository
+import com.thecomingweek.data.repository.PlayerStateRepository
 import com.thecomingweek.data.repository.QuestRepository
 import com.thecomingweek.data.repository.WeekRepository
 import com.thecomingweek.domain.model.Buff
@@ -10,16 +12,21 @@ import com.thecomingweek.domain.model.Quest
 import com.thecomingweek.domain.usecase.CompleteQuestUseCase
 import com.thecomingweek.domain.usecase.DrawDailyQuestsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
+import java.time.LocalTime
 import javax.inject.Inject
+
+private val AUTO_BATTLE_HOUR = LocalTime.of(22, 0)
 
 @HiltViewModel
 class HomeViewModel @Inject constructor(
@@ -28,12 +35,17 @@ class HomeViewModel @Inject constructor(
     private val questRepository: QuestRepository,
     private val weekRepository: WeekRepository,
     private val buffRepository: BuffRepository,
+    private val battleRepository: BattleRepository,
+    private val playerStateRepository: PlayerStateRepository,
 ) : ViewModel() {
 
     data class UiState(
         val today: List<Quest> = emptyList(),
         val activeBuffs: List<Buff> = emptyList(),
         val daysUntilTrial: Int = 0,
+        val currentHp: Int = 0,
+        val maxHp: Int = 0,
+        val battleResolved: Boolean = false,
         val isLoading: Boolean = true,
     )
 
@@ -48,11 +60,16 @@ class HomeViewModel @Inject constructor(
         combine(
             questRepository.observeToday(epochDay),
             buffRepository.observeActive(epochDay),
-        ) { today, buffs ->
+            battleRepository.observeByEpochDay(epochDay),
+            playerStateRepository.observe(),
+        ) { today, buffs, battle, playerState ->
             UiState(
                 today = today,
                 activeBuffs = buffs,
                 daysUntilTrial = daysUntilTrial(epochDay),
+                currentHp = playerState?.currentHp ?: 0,
+                maxHp = playerState?.maxHp ?: 0,
+                battleResolved = battle != null,
                 isLoading = today.isEmpty(),
             )
         }
@@ -62,8 +79,15 @@ class HomeViewModel @Inject constructor(
                 UiState(isLoading = true),
             )
 
+    // One-shot: fires at most once per app open, when the hour is late and
+    // today's battle has not yet been fought. The screen navigates to the
+    // Battle screen before Home renders.
+    private val _navigateToBattle = Channel<Unit>(Channel.BUFFERED)
+    val navigateToBattle = _navigateToBattle.receiveAsFlow()
+
     init {
         triggerDailyDraw()
+        checkAutoBattleTrigger()
     }
 
     // Completes a quest, then lets the reactive pipeline carry the change to the
@@ -94,6 +118,18 @@ class HomeViewModel @Inject constructor(
                 }
             }
             .launchIn(viewModelScope)
+    }
+
+    // The week comes regardless of the hour: if it is late and today's battle
+    // is still unfought, the day's reckoning is brought to the player rather
+    // than waited on.
+    private fun checkAutoBattleTrigger() {
+        viewModelScope.launch {
+            if (LocalTime.now() < AUTO_BATTLE_HOUR) return@launch
+            if (battleRepository.getByEpochDay(epochDay) == null) {
+                _navigateToBattle.send(Unit)
+            }
+        }
     }
 
     // Sunday is the Trial. 0 when today is Sunday.

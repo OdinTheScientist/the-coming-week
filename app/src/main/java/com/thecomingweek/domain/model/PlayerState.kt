@@ -6,5 +6,7 @@ data class PlayerState(
     val xp: Int,
     val currentBiomeId: Long?,
     val currentWeekId: Long?,
+    val currentHp: Int,
+    val maxHp: Int,
     val stats: List<Stat>
 )

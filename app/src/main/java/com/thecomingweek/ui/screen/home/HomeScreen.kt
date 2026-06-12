@@ -1,9 +1,12 @@
 package com.thecomingweek.ui.screen.home
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -18,10 +21,13 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,6 +37,7 @@ import com.thecomingweek.domain.model.Quest
 import com.thecomingweek.domain.model.QuestStatus
 import com.thecomingweek.domain.model.QuestType
 import com.thecomingweek.domain.model.StatType
+import com.thecomingweek.ui.navigation.Route
 import com.thecomingweek.ui.theme.TheComingWeekTheme
 
 @Composable
@@ -39,19 +46,38 @@ fun HomeScreen(
     viewModel: HomeViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    // Auto-trigger: late hour, today's reckoning unfought — brought to the
+    // player before Home has a chance to render normally.
+    LaunchedEffect(Unit) {
+        viewModel.navigateToBattle.collect {
+            navController.navigate(Route.Battle.path(force = false))
+        }
+    }
+
     HomeScreenContent(
         today = state.today,
         daysUntilTrial = state.daysUntilTrial,
+        currentHp = state.currentHp,
+        maxHp = state.maxHp,
+        questsDrawn = state.today.isNotEmpty(),
+        battleResolved = state.battleResolved,
         onQuestCompleted = viewModel::onQuestCompleted,
+        onInitiateBattle = { force -> navController.navigate(Route.Battle.path(force = force)) },
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
 @Composable
 private fun HomeScreenContent(
     today: List<Quest>,
     daysUntilTrial: Int,
+    currentHp: Int,
+    maxHp: Int,
+    questsDrawn: Boolean,
+    battleResolved: Boolean,
     onQuestCompleted: (Quest) -> Unit,
+    onInitiateBattle: (force: Boolean) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -80,12 +106,50 @@ private fun HomeScreenContent(
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
             )
+            Text(
+                text = "Wounds: $currentHp / $maxHp",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+            )
             Spacer(Modifier.height(8.dp))
             today.forEach { quest ->
                 QuestCard(quest = quest, onComplete = { onQuestCompleted(quest) })
             }
+            Spacer(Modifier.height(8.dp))
+            InitiateBattleButton(
+                enabled = questsDrawn && !battleResolved,
+                onInitiateBattle = onInitiateBattle,
+            )
         }
     }
+}
+
+@OptIn(ExperimentalFoundationApi::class)
+@Composable
+private fun InitiateBattleButton(
+    enabled: Boolean,
+    onInitiateBattle: (force: Boolean) -> Unit,
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+    Text(
+        text = "Initiate Battle",
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onBackground,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .alpha(if (enabled) 1f else 0.4f)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary), RectangleShape)
+            .combinedClickable(
+                interactionSource = interactionSource,
+                indication = null,
+                onClick = { if (enabled) onInitiateBattle(false) },
+                // Debug bypass: a long press fights today's battle again even if
+                // it has already been resolved.
+                onLongClick = { onInitiateBattle(true) },
+            )
+            .padding(vertical = 16.dp),
+    )
 }
 
 @Composable
@@ -185,7 +249,12 @@ private fun HomeScreenPreview() {
                 ),
             ),
             daysUntilTrial = 3,
+            currentHp = 12,
+            maxHp = 15,
+            questsDrawn = true,
+            battleResolved = false,
             onQuestCompleted = {},
+            onInitiateBattle = {},
         )
     }
 }

@@ -54,9 +54,62 @@ until the review returns no blockers.
 - [x] **Stage 9 — Weekly loop**
   Quotas, stat theme, week advancement. Sunday recognized.
 
-- [ ] **Stage 10 — Boss & biome scaffolding**
+- [x] **Stage 10 — Boss & biome scaffolding**
   Boss difficulty calculation, weekly boss resolution, biome
   progression and reset on biome end.
+
+- [ ] **Stage 11 — Daily Battle**
+  Daily enemy encounter, turn-based auto-resolution, HP persistence,
+  battle screen, manual trigger + 10pm auto-trigger, debug long-press bypass.
+
+  **HP & Damage Formula**
+  - Player max HP = `10 + (level * 5)`. Seed: level 1 = 15 HP.
+  - Enemy HP = `5 + (weekNumber * 2)`. Enemy attack = `2 + weekNumber`.
+  - Player base attack = `3 + (statThemeValue / 2)`.
+  - Buff (all quests done): player +2 attack, enemy -1 attack.
+  - Neutral (some done): no modifier.
+  - Debuff (none done): player -1 attack, enemy +1 attack.
+  - Boss HP = `20 + (weekNumber * 5)`. Boss attack = `4 + (weekNumber * 2)`.
+
+  **New domain models:** `BattleResult`, `BattleRound`, `BattleType`, `BattleOutcome`.
+  **New entity/DAO:** `BattleResultEntity`, `BattleResultDao`.
+  **New use case:** `ResolveDailyBattleUseCase`.
+  **PlayerState additions:** `currentHp`, `maxHp`.
+
+  **Trigger logic**
+  - Manual button on Home: active when quests drawn + today's battle unresolved.
+  - Long-press same button: debug bypass of resolved gate.
+  - Auto-trigger: on app open, if time ≥ 22:00 and today's battle unresolved,
+    navigate directly to BattleScreen before Home renders.
+
+  **Battle screen** (`ui/screen/battle/`)
+  - Hero sprite left, enemy sprite right, HP bars for both.
+  - Scrollable round log: `"You strike for 4."` / `"The Hollow Grunt claws for 3."`
+  - Resolution banner: `"The enemy falls."` (victory) or
+    `"You are broken. The week is not over."` (wounded).
+  - Continue returns to Home.
+
+  **Enemy roster (MVP, stat-keyed, reused across biomes)**
+  - Strength: The Hollow Grunt
+  - Agility: The Flinching Shade
+  - Vitality: The Rot-Bloated
+  - Intellect: The Pale Scribe
+  - Creativity: The Withered Muse
+  - Willpower: The Kneeling Penitent
+
+  **Wounded state:** HP ≤ 0 mid-week → set to 1 for boss fight, -2 player
+  attack for boss duration.
+  **Week reset:** `AdvanceWeekUseCase` resets `currentHp = maxHp`.
+
+  Gate: all 8 acceptance criteria must pass before advancing.
+  1. Battle resolves correctly from all three buff states.
+  2. HP persists after battle, visible on Home.
+  3. Today's battle cannot be resolved twice (normal path).
+  4. Long-press bypasses resolved gate.
+  5. Auto-trigger fires on app open after 10pm if unresolved.
+  6. BattleScreen shows round log and resolution banner.
+  7. Week advance resets HP.
+  8. Wounded state applies -2 attack debuff to boss fight.
 
 ---
 

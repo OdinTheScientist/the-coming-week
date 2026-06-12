@@ -3,6 +3,7 @@ package com.thecomingweek.domain.usecase
 import com.thecomingweek.data.repository.BiomeRepository
 import com.thecomingweek.data.repository.BossRepository
 import com.thecomingweek.data.repository.BuffRepository
+import com.thecomingweek.data.repository.PlayerStateRepository
 import com.thecomingweek.data.repository.StatRepository
 import com.thecomingweek.data.repository.WeekRepository
 import com.thecomingweek.domain.model.Boss
@@ -27,6 +28,7 @@ class ResolveWeeklyBossUseCase @Inject constructor(
     private val biomeRepository: BiomeRepository,
     private val bossRepository: BossRepository,
     private val buffRepository: BuffRepository,
+    private val playerStateRepository: PlayerStateRepository,
     private val checkWeeklyQuotas: CheckWeeklyQuotasUseCase,
     private val calculateBossDifficulty: CalculateBossDifficultyUseCase,
     private val advanceWeek: AdvanceWeekUseCase,
@@ -39,7 +41,18 @@ class ResolveWeeklyBossUseCase @Inject constructor(
         val week = weekRepository.current()
         val statSum = statRepository.all().sumOf { it.value }
         val quotasMet = week?.let { checkWeeklyQuotas(it).progress.count { q -> q.met } } ?: 0
-        val score = playerScore(statSum, quotasMet)
+
+        // A body broken by the week's battles still stands for the Trial — but
+        // diminished. Set to 1 HP (not 0: the Trial is not a battle the player
+        // can simply be absent from) and the weakness is felt as a penalty to
+        // the score they bring.
+        val wounded = (playerStateRepository.get()?.currentHp ?: 1) <= 0
+        if (wounded) {
+            playerStateRepository.setCurrentHp(1)
+        }
+        // The Trial has no attack stat to dock; the roadmap's "-2 attack while
+        // wounded" is deliberately applied here as a flat -2 to score instead.
+        val score = playerScore(statSum, quotasMet) - if (wounded) 2 else 0
 
         val defeated = score >= finalDifficulty
 

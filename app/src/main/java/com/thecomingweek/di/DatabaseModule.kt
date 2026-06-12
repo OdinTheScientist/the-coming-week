@@ -5,6 +5,7 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.thecomingweek.data.local.AppDatabase
+import com.thecomingweek.data.local.dao.BattleResultDao
 import com.thecomingweek.data.local.dao.BiomeDao
 import com.thecomingweek.data.local.dao.BossDao
 import com.thecomingweek.data.local.dao.BuffDao
@@ -40,10 +41,11 @@ object DatabaseModule {
                     }
                 }
             })
-            // Stage 10 bumped the schema to v2 (Biome.isCompleted). No real
-            // migration is written: the MVP carries no production data worth
-            // preserving, so a version bump simply rebuilds the DB and re-seeds
-            // via onCreate. Authoring real migrations is a post-launch concern.
+            // Stage 11 bumped the schema to v3 (PlayerState HP, battle_results).
+            // No real migration is written: the MVP carries no production data
+            // worth preserving, so a version bump simply rebuilds the DB and
+            // re-seeds via onCreate. Authoring real migrations is a post-launch
+            // concern.
             //
             // TODO(post-MVP): fallbackToDestructiveMigration WIPES the entire
             // database on every schema change. This is acceptable for the MVP
@@ -75,4 +77,7 @@ object DatabaseModule {
 
     @Provides
     fun provideBuffDao(db: AppDatabase): BuffDao = db.buffDao()
+
+    @Provides
+    fun provideBattleResultDao(db: AppDatabase): BattleResultDao = db.battleResultDao()
 }

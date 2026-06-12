@@ -1,6 +1,8 @@
 package com.thecomingweek.data.local
 
 import androidx.room.TypeConverter
+import com.thecomingweek.domain.model.BattleOutcome
+import com.thecomingweek.domain.model.BattleType
 import com.thecomingweek.domain.model.BuffPolarity
 import com.thecomingweek.domain.model.BuffSource
 import com.thecomingweek.domain.model.QuestStatus
@@ -38,4 +40,16 @@ class Converters {
 
     @TypeConverter
     fun toBuffSource(value: String): BuffSource = BuffSource.valueOf(value)
+
+    @TypeConverter
+    fun fromBattleType(value: BattleType): String = value.name
+
+    @TypeConverter
+    fun toBattleType(value: String): BattleType = BattleType.valueOf(value)
+
+    @TypeConverter
+    fun fromBattleOutcome(value: BattleOutcome): String = value.name
+
+    @TypeConverter
+    fun toBattleOutcome(value: String): BattleOutcome = BattleOutcome.valueOf(value)
 }

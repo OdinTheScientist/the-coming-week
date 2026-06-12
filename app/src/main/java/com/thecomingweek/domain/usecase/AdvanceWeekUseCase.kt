@@ -46,6 +46,8 @@ class AdvanceWeekUseCase @Inject constructor(
         weekRepository.upsert(next)
         statRepository.resetWeeklyGains()
         playerStateRepository.setCurrentWeek(next.id)
+        // A fresh week, a fresh body: the prior week's wounds do not carry over.
+        playerStateRepository.resetHp()
     }
 
     // Themes rotate through StatType in declaration order, wrapping around.

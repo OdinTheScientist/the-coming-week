@@ -2,6 +2,7 @@ package com.thecomingweek.ui.screen.boss
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.thecomingweek.data.repository.PlayerStateRepository
 import com.thecomingweek.data.repository.StatRepository
 import com.thecomingweek.data.repository.WeekRepository
 import com.thecomingweek.domain.model.Boss
@@ -24,6 +25,7 @@ import javax.inject.Inject
 class BossViewModel @Inject constructor(
     private val weekRepository: WeekRepository,
     private val statRepository: StatRepository,
+    private val playerStateRepository: PlayerStateRepository,
     private val checkWeeklyQuotas: CheckWeeklyQuotasUseCase,
     private val calculateBossDifficulty: CalculateBossDifficultyUseCase,
     private val resolveWeeklyBoss: ResolveWeeklyBossUseCase,
@@ -60,12 +62,16 @@ class BossViewModel @Inject constructor(
             val difficulty = calculateBossDifficulty(boss)
             val statSum = statRepository.all().sumOf { it.value }
             val quotasMet = checkWeeklyQuotas(week).progress.count { it.met }
+            // Preview must match what ResolveWeeklyBossUseCase will judge:
+            // a wounded body's -2 penalty applies here too.
+            val wounded = (playerStateRepository.get()?.currentHp ?: 1) <= 0
+            val score = playerScore(statSum, quotasMet) - if (wounded) 2 else 0
             _state.update {
                 it.copy(
                     boss = boss,
                     bossArt = WARDEN_ART,
                     finalDifficulty = difficulty,
-                    playerScore = playerScore(statSum, quotasMet),
+                    playerScore = score,
                     isLoading = false,
                 )
             }

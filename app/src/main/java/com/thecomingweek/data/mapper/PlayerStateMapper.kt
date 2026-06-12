@@ -10,6 +10,8 @@ fun PlayerStateEntity.toDomain(statEntities: List<StatEntity>): PlayerState = Pl
     xp = xp,
     currentBiomeId = currentBiomeId,
     currentWeekId = currentWeekId,
+    currentHp = currentHp,
+    maxHp = maxHp,
     stats = statEntities.map { it.toDomain() }
 )
 
@@ -19,7 +21,9 @@ fun PlayerState.toEntity(): PlayerStateEntity = PlayerStateEntity(
     level = level,
     xp = xp,
     currentBiomeId = currentBiomeId,
-    currentWeekId = currentWeekId
+    currentWeekId = currentWeekId,
+    currentHp = currentHp,
+    maxHp = maxHp
 )
 
 fun PlayerState.toStatEntities(): List<StatEntity> =

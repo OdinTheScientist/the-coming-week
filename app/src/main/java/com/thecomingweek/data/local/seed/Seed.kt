@@ -56,7 +56,9 @@ object Seed {
         level = 1,
         xp = 0,
         currentBiomeId = 1L,
-        currentWeekId = 1L
+        currentWeekId = 1L,
+        currentHp = 15,
+        maxHp = 15
     )
 
     private fun stat(type: StatType) = StatEntity(

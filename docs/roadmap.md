@@ -58,7 +58,7 @@ until the review returns no blockers.
   Boss difficulty calculation, weekly boss resolution, biome
   progression and reset on biome end.
 
-- [ ] **Stage 11 — Daily Battle**
+- [x] **Stage 11 — Daily Battle**
   Daily enemy encounter, turn-based auto-resolution, HP persistence,
   battle screen, manual trigger + 10pm auto-trigger, debug long-press bypass.
 
@@ -111,6 +111,33 @@ until the review returns no blockers.
   7. Week advance resets HP.
   8. Wounded state applies -2 attack debuff to boss fight.
 
+  - [ ] **Stage 12 — Quest Reroll**
+    Weekly reroll resource (3 per week) allowing the player to replace one
+    available daily quest with a new weighted draw.
+
+    **Data changes:** `rerollsRemaining: Int` added to Week domain model,
+    entity, mapper, DAO. New weeks and run resets seed with 3.
+
+    **New use case:** `RerollQuestUseCase` — guards on count > 0 and quest
+    AVAILABLE, deletes drawn instance, draws replacement, decrements week.
+
+    **Home screen:** "The Fates (N)" button below quest list. Tapping enters
+    Reroll Mode — available cards highlight (Blood border), completed/missed
+    dim. Tapping available card triggers reroll, exits mode. Cancel text exits
+    with no change. Button grays out at 0 or no available quests.
+
+    **UiState additions:** `rerollsRemaining: Int`, `isRerollMode: Boolean`.
+
+    Gate: all 9 acceptance criteria must pass before advancing.
+    1. Rerolls start at 3 on a fresh week.
+    2. Entering Reroll Mode highlights available, dims completed/missed.
+    3. Tapping available card replaces quest, exits mode, decrements count.
+    4. Count persists across app restarts.
+    5. Button grays out at 0 rerolls or no available quests.
+    6. Cancel exits Reroll Mode with no state change.
+    7. Rerolled quest respects weekly stat theme weighting.
+    8. Cannot reroll completed or missed quest.
+    9. New week resets rerolls to 3.
 ---
 
 ## Deferred / post-MVP

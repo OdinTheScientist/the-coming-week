@@ -3,6 +3,7 @@ package com.thecomingweek.domain.model
 data class Quest(
     val id: String,
     val title: String,
+    val action: String,
     val flavor: String,
     val stat: StatType,
     val type: QuestType,

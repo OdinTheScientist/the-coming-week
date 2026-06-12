@@ -6,6 +6,7 @@ import com.thecomingweek.domain.model.Quest
 fun QuestEntity.toDomain(): Quest = Quest(
     id = id,
     title = title,
+    action = action,
     flavor = flavor,
     stat = stat,
     type = type,
@@ -19,6 +20,7 @@ fun QuestEntity.toDomain(): Quest = Quest(
 fun Quest.toEntity(): QuestEntity = QuestEntity(
     id = id,
     title = title,
+    action = action,
     flavor = flavor,
     stat = stat,
     type = type,

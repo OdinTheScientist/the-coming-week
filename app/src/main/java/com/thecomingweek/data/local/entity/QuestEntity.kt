@@ -10,6 +10,7 @@ import com.thecomingweek.domain.model.StatType
 data class QuestEntity(
     @PrimaryKey val id: String,
     val title: String,
+    val action: String,
     val flavor: String,
     val stat: StatType,
     val type: QuestType,

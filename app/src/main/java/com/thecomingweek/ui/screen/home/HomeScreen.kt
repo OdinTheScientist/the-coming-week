@@ -15,6 +15,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -105,7 +107,8 @@ private fun HomeScreenContent(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = 16.dp)
+                .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
             Spacer(Modifier.height(8.dp))
@@ -256,13 +259,18 @@ private fun QuestCard(
             color = MaterialTheme.colorScheme.onSurface,
         )
         Text(
+            text = quest.action,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurface,
+        )
+        Text(
             text = quest.flavor,
             style = MaterialTheme.typography.bodySmall,
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
         )
         if (completed) {
             Text(
-                text = "✓ observed",
+                text = "✓ Completed",
                 style = MaterialTheme.typography.labelSmall,
                 color = MaterialTheme.colorScheme.secondary,
             )
@@ -286,6 +294,7 @@ private fun HomeScreenPreview() {
                 Quest(
                     id = "str_01_20601",
                     title = "Bear the iron",
+                    action = "Complete a full calisthenics workout session.",
                     flavor = "Lift until the body forgets comfort.",
                     stat = StatType.STRENGTH,
                     type = QuestType.DAILY,
@@ -298,6 +307,7 @@ private fun HomeScreenPreview() {
                 Quest(
                     id = "int_01_20601",
                     title = "Read the old pages",
+                    action = "Read thirty pages of a dense, instructive text.",
                     flavor = "Thirty minutes given to a difficult text.",
                     stat = StatType.INTELLECT,
                     type = QuestType.DAILY,
@@ -310,6 +320,7 @@ private fun HomeScreenPreview() {
                 Quest(
                     id = "wil_01_20601",
                     title = "Sit in the silence",
+                    action = "Meditate for twenty minutes in complete stillness.",
                     flavor = "Ten minutes of stillness, unbroken.",
                     stat = StatType.WILLPOWER,
                     type = QuestType.DAILY,

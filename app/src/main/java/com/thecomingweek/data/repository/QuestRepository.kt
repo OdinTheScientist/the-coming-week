@@ -40,4 +40,8 @@ class QuestRepository @Inject constructor(
     suspend fun delete(id: String) {
         questDao.deleteById(id)
     }
+
+    suspend fun deleteDrawnInstances() {
+        questDao.deleteDrawnInstances()
+    }
 }

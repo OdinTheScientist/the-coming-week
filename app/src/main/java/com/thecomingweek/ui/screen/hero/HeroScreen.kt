@@ -97,8 +97,6 @@ private fun HeroScreenContent(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Spacer(Modifier.height(8.dp))
-
             Text(
                 text = "LEVEL $level",
                 style = MaterialTheme.typography.displayMedium,
@@ -107,12 +105,11 @@ private fun HeroScreenContent(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Spacer(Modifier.height(8.dp))
             LinearProgressIndicator(
                 progress = { if (xpToNext > 0) xp.toFloat() / xpToNext else 0f },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(8.dp),
+                    .height(4.dp),
                 color = MaterialTheme.colorScheme.secondary,
                 trackColor = MaterialTheme.colorScheme.surface,
                 strokeCap = androidx.compose.ui.graphics.StrokeCap.Square,
@@ -125,21 +122,16 @@ private fun HeroScreenContent(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Spacer(Modifier.height(8.dp))
             SpriteSlot()
 
-            Spacer(Modifier.height(8.dp))
             HpRow(currentHp = currentHp, maxHp = maxHp)
 
-            Spacer(Modifier.height(8.dp))
             SigilDivider()
 
             if (activeBuffs.isNotEmpty()) {
-                Spacer(Modifier.height(8.dp))
                 BuffChipRow(activeBuffs)
             }
 
-            Spacer(Modifier.height(8.dp))
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -156,10 +148,7 @@ private fun HeroScreenContent(
                 )
             }
 
-            Spacer(Modifier.height(8.dp))
             StatGrid(stats = stats, onStatClick = onStatClick)
-
-            Spacer(Modifier.height(8.dp))
         }
     }
 }
@@ -294,11 +283,11 @@ private fun StatGrid(stats: List<Stat>, onStatClick: (StatType) -> Unit) {
     val ordered = StatType.entries.map { type ->
         stats.find { it.type == type } ?: Stat(type = type, value = 0, weeklyGain = 0)
     }
-    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
         ordered.chunked(3).forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(4.dp),
             ) {
                 row.forEach { stat ->
                     StatCell(stat = stat, modifier = Modifier.weight(1f), onClick = { onStatClick(stat.type) })
@@ -316,7 +305,7 @@ private fun StatCell(stat: Stat, modifier: Modifier = Modifier, onClick: () -> U
             .background(MaterialTheme.colorScheme.surface, RectangleShape)
             .border(BorderStroke(1.dp, Bone), RectangleShape)
             .clickable { onClick() }
-            .padding(8.dp),
+            .padding(4.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
@@ -334,7 +323,7 @@ private fun StatCell(stat: Stat, modifier: Modifier = Modifier, onClick: () -> U
         )
         Text(
             text = stat.value.toString(),
-            style = MaterialTheme.typography.displaySmall,
+            style = MaterialTheme.typography.titleMedium,
             color = Bone,
             textAlign = TextAlign.Center,
             modifier = Modifier.fillMaxWidth(),

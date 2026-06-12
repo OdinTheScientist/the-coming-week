@@ -1,6 +1,7 @@
 package com.thecomingweek.domain.usecase
 
 import com.thecomingweek.data.repository.PlayerStateRepository
+import com.thecomingweek.data.repository.QuestRepository
 import com.thecomingweek.data.repository.StatRepository
 import com.thecomingweek.data.repository.WeekRepository
 import com.thecomingweek.domain.model.StatType
@@ -12,6 +13,7 @@ class AdvanceWeekUseCase @Inject constructor(
     private val weekRepository: WeekRepository,
     private val statRepository: StatRepository,
     private val playerStateRepository: PlayerStateRepository,
+    private val questRepository: QuestRepository,
 ) {
 
     // Turns the current week into the next. MVP trigger is manual (a ritual act
@@ -44,6 +46,9 @@ class AdvanceWeekUseCase @Inject constructor(
         )
 
         weekRepository.markResolved(current.id)
+        // Clear the prior week's drawn quest instances so the new week's first
+        // day gets a fresh draw from the pool templates (dayAssigned == null).
+        questRepository.deleteDrawnInstances()
         weekRepository.upsert(next)
         statRepository.resetWeeklyGains()
         playerStateRepository.setCurrentWeek(next.id)

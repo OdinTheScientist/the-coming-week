@@ -27,4 +27,7 @@ interface QuestDao {
 
     @Query("DELETE FROM quests WHERE id = :id")
     suspend fun deleteById(id: String)
+
+    @Query("DELETE FROM quests WHERE dayAssigned IS NOT NULL")
+    suspend fun deleteDrawnInstances()
 }

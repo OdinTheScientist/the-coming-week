@@ -1,6 +1,6 @@
 # The Coming Week — Build Roadmap
 
-**Current stage:** Stage 13 — NOT STARTED
+**Current stage:** Stage 14 — NOT STARTED
 
 The MVP is being built in numbered stages. Each stage is a single
 focused commit (or small handful), independently reviewable, and ends
@@ -138,6 +138,16 @@ until the review returns no blockers.
   7. Rerolled quest respects weekly stat theme weighting.
   8. Cannot reroll completed or missed quest.
   9. New week resets rerolls to 3.
+
+
+- [x] **Stage 13 — Quest Pool & Action Field**
+  Added `action: String` field to Quest domain model, QuestEntity,
+  and QuestMapper. Database bumped to v5 (5.json exported). Seed.kt
+  fully replaced with 51-quest pool across 6 stats with varied weights,
+  real habit actions, and reviewed flavor text. QuestCard updated to
+  display action line between title and flavor (JetBrains Mono, Bone,
+  bodyMedium). Drawn instances inherit action from pool templates via
+  .copy() in DrawDailyQuestsUseCase and RerollQuestUseCase.
 ---
 
 ## Deferred / post-MVP

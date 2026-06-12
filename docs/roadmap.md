@@ -1,6 +1,6 @@
 # The Coming Week — Build Roadmap
 
-**Current stage:** Stage 10 — NOT STARTED
+**Current stage:** Stage 13 — NOT STARTED
 
 The MVP is being built in numbered stages. Each stage is a single
 focused commit (or small handful), independently reviewable, and ends
@@ -111,33 +111,33 @@ until the review returns no blockers.
   7. Week advance resets HP.
   8. Wounded state applies -2 attack debuff to boss fight.
 
-  - [ ] **Stage 12 — Quest Reroll**
-    Weekly reroll resource (3 per week) allowing the player to replace one
-    available daily quest with a new weighted draw.
+- [x] **Stage 12 — Quest Reroll**
+  Weekly reroll resource (3 per week) allowing the player to replace one
+  available daily quest with a new weighted draw.
 
-    **Data changes:** `rerollsRemaining: Int` added to Week domain model,
-    entity, mapper, DAO. New weeks and run resets seed with 3.
+  **Data changes:** `rerollsRemaining: Int` added to Week domain model,
+  entity, mapper, DAO. New weeks and run resets seed with 3.
 
-    **New use case:** `RerollQuestUseCase` — guards on count > 0 and quest
-    AVAILABLE, deletes drawn instance, draws replacement, decrements week.
+  **New use case:** `RerollQuestUseCase` — guards on count > 0 and quest
+  AVAILABLE, deletes drawn instance, draws replacement, decrements week.
 
-    **Home screen:** "The Fates (N)" button below quest list. Tapping enters
-    Reroll Mode — available cards highlight (Blood border), completed/missed
-    dim. Tapping available card triggers reroll, exits mode. Cancel text exits
-    with no change. Button grays out at 0 or no available quests.
+  **Home screen:** "The Fates (N)" button below quest list. Tapping enters
+  Reroll Mode — available cards highlight (Blood border), completed/missed
+  dim. Tapping available card triggers reroll, exits mode. Cancel text exits
+  with no change. Button grays out at 0 or no available quests.
 
-    **UiState additions:** `rerollsRemaining: Int`, `isRerollMode: Boolean`.
+  **UiState additions:** `rerollsRemaining: Int`, `isRerollMode: Boolean`.
 
-    Gate: all 9 acceptance criteria must pass before advancing.
-    1. Rerolls start at 3 on a fresh week.
-    2. Entering Reroll Mode highlights available, dims completed/missed.
-    3. Tapping available card replaces quest, exits mode, decrements count.
-    4. Count persists across app restarts.
-    5. Button grays out at 0 rerolls or no available quests.
-    6. Cancel exits Reroll Mode with no state change.
-    7. Rerolled quest respects weekly stat theme weighting.
-    8. Cannot reroll completed or missed quest.
-    9. New week resets rerolls to 3.
+  Gate: all 9 acceptance criteria must pass before advancing.
+  1. Rerolls start at 3 on a fresh week.
+  2. Entering Reroll Mode highlights available, dims completed/missed.
+  3. Tapping available card replaces quest, exits mode, decrements count.
+  4. Count persists across app restarts.
+  5. Button grays out at 0 rerolls or no available quests.
+  6. Cancel exits Reroll Mode with no state change.
+  7. Rerolled quest respects weekly stat theme weighting.
+  8. Cannot reroll completed or missed quest.
+  9. New week resets rerolls to 3.
 ---
 
 ## Deferred / post-MVP

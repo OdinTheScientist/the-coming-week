@@ -40,6 +40,7 @@ class AdvanceWeekUseCase @Inject constructor(
             endEpochDay = current.endEpochDay + 7,
             quotas = quotasForTheme(theme),
             isResolved = false,
+            rerollsRemaining = 3,
         )
 
         weekRepository.markResolved(current.id)

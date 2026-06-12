@@ -24,4 +24,7 @@ interface QuestDao {
 
     @Query("UPDATE quests SET status = :status WHERE id = :id")
     suspend fun updateStatus(id: String, status: QuestStatus)
+
+    @Query("DELETE FROM quests WHERE id = :id")
+    suspend fun deleteById(id: String)
 }

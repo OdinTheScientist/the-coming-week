@@ -15,7 +15,8 @@ fun WeekEntity.toDomain(): Week = Week(
     startEpochDay = startEpochDay,
     endEpochDay = endEpochDay,
     quotas = quotasFromJson(quotasJson),
-    isResolved = isResolved
+    isResolved = isResolved,
+    rerollsRemaining = rerollsRemaining
 )
 
 fun Week.toEntity(): WeekEntity = WeekEntity(
@@ -26,7 +27,8 @@ fun Week.toEntity(): WeekEntity = WeekEntity(
     startEpochDay = startEpochDay,
     endEpochDay = endEpochDay,
     quotasJson = quotasToJson(quotas),
-    isResolved = isResolved
+    isResolved = isResolved,
+    rerollsRemaining = rerollsRemaining
 )
 
 private val mapSerializer = MapSerializer(String.serializer(), Int.serializer())

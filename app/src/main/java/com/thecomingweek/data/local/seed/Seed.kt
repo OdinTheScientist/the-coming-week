@@ -49,6 +49,7 @@ object Seed {
         endEpochDay = startEpochDay + 6,
         quotas = quotasForTheme(StatType.STRENGTH),
         isResolved = false,
+        rerollsRemaining = 3,
     ).toEntity()
 
     private fun playerState() = PlayerStateEntity(

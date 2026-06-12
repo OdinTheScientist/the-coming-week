@@ -13,5 +13,6 @@ data class WeekEntity(
     val startEpochDay: Long,
     val endEpochDay: Long,
     val quotasJson: String,
-    val isResolved: Boolean
+    val isResolved: Boolean,
+    val rerollsRemaining: Int
 )

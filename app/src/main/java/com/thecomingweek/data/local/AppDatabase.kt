@@ -31,7 +31,7 @@ import com.thecomingweek.data.local.entity.WeekEntity
         BuffEntity::class,
         BattleResultEntity::class
     ],
-    version = 3,
+    version = 4,
     exportSchema = true
 )
 @TypeConverters(Converters::class)

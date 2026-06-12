@@ -30,6 +30,9 @@ class WeekRepository @Inject constructor(
 
     suspend fun markResolved(id: Long) = weekDao.updateResolved(id, true)
 
+    suspend fun setRerollsRemaining(weekId: Long, count: Int) =
+        weekDao.updateRerollsRemaining(weekId, count)
+
     // Count of stats whose weekly quota is unmet. Shares the counting rule with
     // CheckWeeklyQuotasUseCase through computeQuotaProgress rather than calling
     // the use case — a repository must not depend on a use case. Stage 10's boss

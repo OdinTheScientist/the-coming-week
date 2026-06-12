@@ -11,8 +11,10 @@ import com.thecomingweek.domain.model.Buff
 import com.thecomingweek.domain.model.Quest
 import com.thecomingweek.domain.usecase.CompleteQuestUseCase
 import com.thecomingweek.domain.usecase.DrawDailyQuestsUseCase
+import com.thecomingweek.domain.usecase.RerollQuestUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -20,6 +22,7 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.DayOfWeek
 import java.time.LocalDate
@@ -32,6 +35,7 @@ private val AUTO_BATTLE_HOUR = LocalTime.of(22, 0)
 class HomeViewModel @Inject constructor(
     private val drawDailyQuests: DrawDailyQuestsUseCase,
     private val completeQuest: CompleteQuestUseCase,
+    private val rerollQuest: RerollQuestUseCase,
     private val questRepository: QuestRepository,
     private val weekRepository: WeekRepository,
     private val buffRepository: BuffRepository,
@@ -46,6 +50,8 @@ class HomeViewModel @Inject constructor(
         val currentHp: Int = 0,
         val maxHp: Int = 0,
         val battleResolved: Boolean = false,
+        val rerollsRemaining: Int = 3,
+        val isRerollMode: Boolean = false,
         val isLoading: Boolean = true,
     )
 
@@ -56,23 +62,32 @@ class HomeViewModel @Inject constructor(
     // so a plain var is safe and cannot double-draw.
     private var drawAttempted = false
 
+    // Reroll Mode is a transient UI toggle, not persisted state — tracked
+    // separately and merged onto the reactive snapshot below.
+    private val _isRerollMode = MutableStateFlow(false)
+
     val state: StateFlow<UiState> =
         combine(
-            questRepository.observeToday(epochDay),
-            buffRepository.observeActive(epochDay),
-            battleRepository.observeByEpochDay(epochDay),
-            playerStateRepository.observe(),
-        ) { today, buffs, battle, playerState ->
-            UiState(
-                today = today,
-                activeBuffs = buffs,
-                daysUntilTrial = daysUntilTrial(epochDay),
-                currentHp = playerState?.currentHp ?: 0,
-                maxHp = playerState?.maxHp ?: 0,
-                battleResolved = battle != null,
-                isLoading = today.isEmpty(),
-            )
-        }
+            combine(
+                questRepository.observeToday(epochDay),
+                buffRepository.observeActive(epochDay),
+                battleRepository.observeByEpochDay(epochDay),
+                playerStateRepository.observe(),
+                weekRepository.observeCurrent(),
+            ) { today, buffs, battle, playerState, week ->
+                UiState(
+                    today = today,
+                    activeBuffs = buffs,
+                    daysUntilTrial = daysUntilTrial(epochDay),
+                    currentHp = playerState?.currentHp ?: 0,
+                    maxHp = playerState?.maxHp ?: 0,
+                    battleResolved = battle != null,
+                    rerollsRemaining = week?.rerollsRemaining ?: 3,
+                    isLoading = today.isEmpty(),
+                )
+            },
+            _isRerollMode,
+        ) { base, rerollMode -> base.copy(isRerollMode = rerollMode) }
             .stateIn(
                 viewModelScope,
                 SharingStarted.WhileSubscribed(5_000),
@@ -96,6 +111,22 @@ class HomeViewModel @Inject constructor(
     fun onQuestCompleted(quest: Quest) {
         viewModelScope.launch {
             completeQuest(quest, epochDay)
+        }
+    }
+
+    // Enters/exits Reroll Mode. Tapping the Fates button or the cancel line
+    // both flip this; no other state changes.
+    fun onRerollModeToggle() {
+        _isRerollMode.update { !it }
+    }
+
+    // Replaces one of today's available quests, then exits Reroll Mode. The
+    // reactive pipeline (observeToday + observeCurrent) carries the new quest
+    // and the decremented count to the UI.
+    fun onRerollQuest(questId: String) {
+        viewModelScope.launch {
+            rerollQuest(questId, epochDay)
+            _isRerollMode.value = false
         }
     }
 

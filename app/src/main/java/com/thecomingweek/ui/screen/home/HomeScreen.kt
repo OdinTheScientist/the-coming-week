@@ -62,8 +62,12 @@ fun HomeScreen(
         maxHp = state.maxHp,
         questsDrawn = state.today.isNotEmpty(),
         battleResolved = state.battleResolved,
+        rerollsRemaining = state.rerollsRemaining,
+        isRerollMode = state.isRerollMode,
         onQuestCompleted = viewModel::onQuestCompleted,
         onInitiateBattle = { force -> navController.navigate(Route.Battle.path(force = force)) },
+        onRerollModeToggle = viewModel::onRerollModeToggle,
+        onRerollQuest = viewModel::onRerollQuest,
     )
 }
 
@@ -76,8 +80,12 @@ private fun HomeScreenContent(
     maxHp: Int,
     questsDrawn: Boolean,
     battleResolved: Boolean,
+    rerollsRemaining: Int,
+    isRerollMode: Boolean,
     onQuestCompleted: (Quest) -> Unit,
     onInitiateBattle: (force: Boolean) -> Unit,
+    onRerollModeToggle: () -> Unit,
+    onRerollQuest: (String) -> Unit,
 ) {
     Scaffold(
         topBar = {
@@ -113,7 +121,30 @@ private fun HomeScreenContent(
             )
             Spacer(Modifier.height(8.dp))
             today.forEach { quest ->
-                QuestCard(quest = quest, onComplete = { onQuestCompleted(quest) })
+                QuestCard(
+                    quest = quest,
+                    isRerollMode = isRerollMode,
+                    onComplete = { onQuestCompleted(quest) },
+                    onReroll = { onRerollQuest(quest.id) },
+                )
+            }
+            Spacer(Modifier.height(8.dp))
+            val anyAvailable = today.any { it.status == QuestStatus.AVAILABLE }
+            TheFatesButton(
+                rerollsRemaining = rerollsRemaining,
+                enabled = rerollsRemaining > 0 && anyAvailable,
+                onToggle = onRerollModeToggle,
+            )
+            if (isRerollMode) {
+                Text(
+                    text = "Choose a quest to replace. Tap to cancel.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.6f),
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onRerollModeToggle() },
+                )
             }
             Spacer(Modifier.height(8.dp))
             InitiateBattleButton(
@@ -122,6 +153,26 @@ private fun HomeScreenContent(
             )
         }
     }
+}
+
+@Composable
+private fun TheFatesButton(
+    rerollsRemaining: Int,
+    enabled: Boolean,
+    onToggle: () -> Unit,
+) {
+    Text(
+        text = "The Fates ($rerollsRemaining)",
+        style = MaterialTheme.typography.titleLarge,
+        color = MaterialTheme.colorScheme.onBackground,
+        textAlign = TextAlign.Center,
+        modifier = Modifier
+            .fillMaxWidth()
+            .alpha(if (enabled) 1f else 0.4f)
+            .border(BorderStroke(1.dp, MaterialTheme.colorScheme.primary), RectangleShape)
+            .then(if (enabled) Modifier.clickable { onToggle() } else Modifier)
+            .padding(vertical = 16.dp),
+    )
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -155,19 +206,40 @@ private fun InitiateBattleButton(
 @Composable
 private fun QuestCard(
     quest: Quest,
+    isRerollMode: Boolean,
     onComplete: () -> Unit,
+    onReroll: () -> Unit,
 ) {
     val completed = quest.status == QuestStatus.COMPLETED
+    val available = quest.status == QuestStatus.AVAILABLE
 
     val cardModifier = Modifier
         .fillMaxWidth()
-        .then(if (completed) Modifier else Modifier.clickable { onComplete() })
+        .then(
+            when {
+                isRerollMode && available -> Modifier.clickable { onReroll() }
+                isRerollMode -> Modifier
+                !completed -> Modifier.clickable { onComplete() }
+                else -> Modifier
+            }
+        )
         .background(MaterialTheme.colorScheme.surface, RectangleShape)
-        .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RectangleShape)
+        .border(
+            BorderStroke(
+                width = 1.dp,
+                color = if (isRerollMode && available) {
+                    MaterialTheme.colorScheme.primary
+                } else {
+                    MaterialTheme.colorScheme.outline
+                },
+            ),
+            RectangleShape,
+        )
         .padding(16.dp)
         // Completing a ritual is solemn: a finished card recedes rather than
-        // celebrates. Dimming reads as "observed and set aside".
-        .alpha(if (completed) 0.45f else 1f)
+        // celebrates. Dimming reads as "observed and set aside". In Reroll
+        // Mode the same dimming marks cards that are off-limits to the Fates.
+        .alpha(if (completed || (isRerollMode && !available)) 0.4f else 1f)
 
     Column(
         modifier = cardModifier,
@@ -253,8 +325,12 @@ private fun HomeScreenPreview() {
             maxHp = 15,
             questsDrawn = true,
             battleResolved = false,
+            rerollsRemaining = 3,
+            isRerollMode = false,
             onQuestCompleted = {},
             onInitiateBattle = {},
+            onRerollModeToggle = {},
+            onRerollQuest = {},
         )
     }
 }

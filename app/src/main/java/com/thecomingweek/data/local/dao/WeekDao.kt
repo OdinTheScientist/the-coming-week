@@ -20,4 +20,7 @@ interface WeekDao {
 
     @Query("UPDATE weeks SET isResolved = :resolved WHERE id = :id")
     suspend fun updateResolved(id: Long, resolved: Boolean)
+
+    @Query("UPDATE weeks SET rerollsRemaining = :count WHERE id = :weekId")
+    suspend fun updateRerollsRemaining(weekId: Long, count: Int)
 }

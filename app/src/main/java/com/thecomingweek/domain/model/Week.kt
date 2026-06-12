@@ -8,5 +8,6 @@ data class Week(
     val startEpochDay: Long,
     val endEpochDay: Long,
     val quotas: Map<StatType, Int>,
-    val isResolved: Boolean
+    val isResolved: Boolean,
+    val rerollsRemaining: Int
 )

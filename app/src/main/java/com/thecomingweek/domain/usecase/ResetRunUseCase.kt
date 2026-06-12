@@ -64,6 +64,7 @@ class ResetRunUseCase @Inject constructor(
             endEpochDay = newStart + 6,
             quotas = quotasForTheme(theme),
             isResolved = false,
+            rerollsRemaining = 3,
         )
         weekRepository.upsert(newWeek)
 

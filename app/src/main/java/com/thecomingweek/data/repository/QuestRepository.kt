@@ -36,4 +36,8 @@ class QuestRepository @Inject constructor(
     suspend fun miss(id: String) {
         questDao.updateStatus(id, QuestStatus.MISSED)
     }
+
+    suspend fun delete(id: String) {
+        questDao.deleteById(id)
+    }
 }

@@ -1,6 +1,6 @@
 # The Coming Week — Build Roadmap
 
-**Current stage:** Stage 14 — NOT STARTED
+**Current stage:** Stage 15 — NOT STARTED
 
 The MVP is being built in numbered stages. Each stage is a single
 focused commit (or small handful), independently reviewable, and ends
@@ -148,6 +148,39 @@ until the review returns no blockers.
   display action line between title and flavor (JetBrains Mono, Bone,
   bodyMedium). Drawn instances inherit action from pool templates via
   .copy() in DrawDailyQuestsUseCase and RerollQuestUseCase.
+
+- [x] **Stage 14 — Hero Screen & Stat Quest Browser**
+  Replace Stats screen with Hero identity screen. Add stat drill-down
+  to per-stat quest browser. Retire StatsScreen entirely.
+
+  **Navigation:** Stats replaced by Hero in BottomBar. New routes:
+  Route.Hero, Route.StatQuests(stat). StatsScreen/VM deleted.
+
+  **New domain model:** StatQuestEntry(quest, isDrawnThisWeek).
+  **New use case:** GetQuestsByStatUseCase — returns pool templates
+  for a stat annotated with drawn-this-week flag, sorted drawn-first.
+
+  **HeroScreen** (ui/screen/hero/): level, XP progress, 32×32 sprite
+  slot with corner ticks, HP bar (Blood), sigil divider, buff chips,
+  3×2 stat grid. Tap stat cell → StatQuestsScreen.
+
+  **StatQuestsScreen** (ui/screen/statquests/): top bar with back,
+  stat name/value, ritual subtitle, quota display. Scrollable quest
+  list showing full pool for that stat, drawn indicator on active
+  quests.
+
+  Gate: all 11 acceptance criteria must pass before advancing.
+  1. Bottom nav: Home / Week / Hero / Biome, Stats gone.
+  2. Hero screen renders all mockup elements.
+  3. Stat grid reflects actual persistent stat values.
+  4. HP bar fills proportionally in Blood.
+  5. Buff chips show/hide correctly.
+  6. Stat cell tap navigates to quest browser.
+  7. Quest browser shows full pool for that stat.
+  8. Drawn quests show indicator and sort to top.
+  9. Quota shows correct done/total.
+  10. StatsScreen fully removed, no dead references.
+  11. Build passes, no warnings.
 ---
 
 ## Deferred / post-MVP

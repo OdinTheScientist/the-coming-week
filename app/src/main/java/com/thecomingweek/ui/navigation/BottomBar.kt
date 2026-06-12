@@ -22,7 +22,7 @@ fun TheComingWeekBottomBar(navController: NavHostController) {
     val tabs = listOf(
         Route.Home to "Home",
         Route.Week to "Week",
-        Route.Stats to "Stats",
+        Route.Hero to "Hero",
         Route.Biome to "Biome",
     )
 

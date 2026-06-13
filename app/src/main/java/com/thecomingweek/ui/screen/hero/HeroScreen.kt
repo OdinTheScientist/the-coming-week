@@ -95,7 +95,7 @@ private fun HeroScreenContent(
                 .padding(padding)
                 .padding(horizontal = 16.dp)
                 .verticalScroll(rememberScrollState()),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            verticalArrangement = Arrangement.spacedBy(4.dp),
         ) {
             Text(
                 text = "LEVEL $level",
@@ -108,8 +108,9 @@ private fun HeroScreenContent(
             LinearProgressIndicator(
                 progress = { if (xpToNext > 0) xp.toFloat() / xpToNext else 0f },
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(4.dp),
+                    .fillMaxWidth(0.33f)
+                    .align(Alignment.CenterHorizontally)
+                    .height(2.dp),
                 color = MaterialTheme.colorScheme.secondary,
                 trackColor = MaterialTheme.colorScheme.surface,
                 strokeCap = androidx.compose.ui.graphics.StrokeCap.Square,
@@ -160,12 +161,12 @@ private fun SpriteSlot() {
     Box(
         modifier = Modifier
             .fillMaxWidth()
-            .height(64.dp),
+            .height(160.dp),
         contentAlignment = Alignment.Center,
     ) {
         Box(
             modifier = Modifier
-                .size(64.dp)
+                .size(160.dp)
                 .border(BorderStroke(1.dp, MaterialTheme.colorScheme.outline), RectangleShape)
                 .background(MaterialTheme.colorScheme.surface, RectangleShape),
             contentAlignment = Alignment.Center,
@@ -283,11 +284,11 @@ private fun StatGrid(stats: List<Stat>, onStatClick: (StatType) -> Unit) {
     val ordered = StatType.entries.map { type ->
         stats.find { it.type == type } ?: Stat(type = type, value = 0, weeklyGain = 0)
     }
-    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
         ordered.chunked(3).forEach { row ->
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalArrangement = Arrangement.spacedBy(2.dp),
             ) {
                 row.forEach { stat ->
                     StatCell(stat = stat, modifier = Modifier.weight(1f), onClick = { onStatClick(stat.type) })

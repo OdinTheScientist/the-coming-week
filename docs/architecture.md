@@ -113,9 +113,11 @@ com.thecomingweek/
 │   └── screen/
 │       ├── home/                    // HomeScreen + HomeViewModel
 │       ├── quest/                   // QuestDetailScreen + VM
-│       ├── stats/                   // StatsScreen + VM
+│       ├── hero/                    // HeroScreen + HeroViewModel
+│       ├── statquests/              // StatQuestsScreen + StatQuestsViewModel
 │       ├── week/                    // WeekScreen + VM
 │       ├── boss/                    // BossScreen + VM
+│       ├── battle/                  // BattleScreen + BattleViewModel
 │       └── biome/                   // BiomeScreen + VM
 │
 └── di/
@@ -294,19 +296,27 @@ class HomeViewModel @Inject constructor(...) : ViewModel() {
 ## Navigation
 
 Routes defined as a sealed class in `ui/navigation/Routes.kt`. Single
-`NavHost` in `NavGraph.kt`. Bottom bar surfaces Home / Week / Stats /
+`NavHost` in `NavGraph.kt`. Bottom bar surfaces Home / Week / Hero /
 Biome. Boss is reached from the Week screen on Sunday. QuestDetail is
-reached from Home.
+reached from Home. StatQuests is reached from the Hero screen.
 
 ```kotlin
 sealed class Route(val path: String) {
+    data object Splash : Route("splash")
     data object Home   : Route("home")
-    data object Stats  : Route("stats")
+    data object Hero   : Route("hero")
     data object Week   : Route("week")
     data object Boss   : Route("boss")
+    data object Battle : Route("battle") {
+        const val PATTERN = "battle?force={force}"
+        fun path(force: Boolean) = "battle?force=$force"
+    }
     data object Biome  : Route("biome")
     data class QuestDetail(val id: String) : Route("quest/$id") {
         companion object { const val PATTERN = "quest/{id}" }
+    }
+    data class StatQuests(val stat: StatType) : Route("statquests/${stat.name}") {
+        companion object { const val PATTERN = "statquests/{stat}" }
     }
 }
 ```

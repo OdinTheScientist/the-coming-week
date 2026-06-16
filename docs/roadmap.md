@@ -181,6 +181,38 @@ until the review returns no blockers.
   9. Quota shows correct done/total.
   10. StatsScreen fully removed, no dead references.
   11. Build passes, no warnings.
+
+- [ ] **Stage 15 — Biome Calendar**
+  Replace bare Biome screen with a 6-week calendar grid. Add DayRecord
+  to data layer. Day cells styled by state. Biome pagination. ASCII art
+  backdrop. Long-press debug day-jump. DayRecord written on battle resolve.
+
+  **New entity:** DayRecord (epochDay PK, biomeId, weekId, questIds JSON,
+  questStatuses JSON, battleOutcome?, hpBefore, hpAfter, note?).
+  Schema → v6.
+
+  **DayRecord written:** ResolveDailyBattleUseCase upserts DayRecord
+  after battle resolves.
+
+  **BiomeScreen:** header (name + date range + pagination), ASCII backdrop
+  at 15% alpha, 7×6 calendar grid, day cells styled by DayState enum.
+  Long-press cell → debug day-jump.
+
+  **Pagination:** left/right chevrons. Forward into future 6-week windows
+  (no game data). Back into past biomes.
+
+  Gate: all 11 acceptance criteria must pass before advancing.
+  1. 6-week calendar grid renders with correct day cells.
+  2. All 8 DayState variants render correctly.
+  3. ASCII backdrop at 15% opacity.
+  4. Header: biome name + date range + chevrons.
+  5. Forward pagination shows FUTURE cells.
+  6. Back pagination shows historical data.
+  7. DayRecord written on battle resolve.
+  8. Long-press day-jump works with confirmation.
+  9. Tap does nothing (Stage 16).
+  10. Schema v6, 6.json exported.
+  11. Build passes, no warnings.
 ---
 
 ## Deferred / post-MVP

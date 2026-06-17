@@ -10,6 +10,7 @@ import com.thecomingweek.domain.model.BattleResult
 import com.thecomingweek.domain.model.BattleRound
 import com.thecomingweek.domain.model.BattleType
 import com.thecomingweek.domain.model.DayRecord
+import com.thecomingweek.domain.model.QuestSnapshot
 import com.thecomingweek.domain.model.QuestStatus
 import com.thecomingweek.domain.usecase.internal.enemyNameForTheme
 import kotlinx.coroutines.flow.first
@@ -90,13 +91,15 @@ class ResolveDailyBattleUseCase @Inject constructor(
         battleRepository.upsert(result)
         playerStateRepository.setCurrentHp(playerHp)
 
+        val quests = today.map { q ->
+            QuestSnapshot(id = q.id, title = q.title, action = q.action, stat = q.stat, status = q.status)
+        }
         dayRecordRepository.upsert(
             DayRecord(
                 epochDay = epochDay,
                 biomeId = week.biomeId,
                 weekId = week.id,
-                questIds = today.map { it.id },
-                questStatuses = today.associate { it.id to it.status },
+                quests = quests,
                 battleOutcome = outcome,
                 hpBefore = hpBefore,
                 hpAfter = playerHp,

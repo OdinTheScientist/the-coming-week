@@ -23,4 +23,9 @@ sealed class Route(val path: String) {
             const val PATTERN = "statquests/{stat}"
         }
     }
+    data class Journal(val epochDay: Long) : Route("journal/$epochDay") {
+        companion object {
+            const val PATTERN = "journal/{epochDay}"
+        }
+    }
 }

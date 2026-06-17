@@ -187,7 +187,7 @@ private fun deriveDayState(
 
     val record = recordsByDay[epochDay]
     if (record != null) {
-        val statuses = record.questStatuses.values
+        val statuses = record.quests.map { it.status }
         return when {
             statuses.isNotEmpty() && statuses.all { it == QuestStatus.COMPLETED } -> DayState.COMPLETE
             statuses.any { it == QuestStatus.COMPLETED } -> DayState.PARTIAL

@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.thecomingweek.domain.model.CalendarDay
 import com.thecomingweek.domain.model.DayState
+import com.thecomingweek.ui.navigation.Route
 import com.thecomingweek.ui.theme.Ash
 import com.thecomingweek.ui.theme.Blood
 import com.thecomingweek.ui.theme.Bone
@@ -76,6 +77,7 @@ fun BiomeScreen(
         onPaginateBack = viewModel::onPaginateBack,
         onPaginateForward = viewModel::onPaginateForward,
         onDebugDayJump = viewModel::onDebugDayJump,
+        onDayTap = { epochDay -> navController.navigate(Route.Journal(epochDay).path) },
     )
 }
 
@@ -85,6 +87,7 @@ private fun BiomeScreenContent(
     onPaginateBack: () -> Unit,
     onPaginateForward: () -> Unit,
     onDebugDayJump: (Long) -> Unit,
+    onDayTap: (Long) -> Unit,
 ) {
     var debugMessage by remember { mutableStateOf<String?>(null) }
 
@@ -111,6 +114,7 @@ private fun BiomeScreenContent(
 
             CalendarBox(
                 calendarDays = state.calendarDays,
+                onTap = onDayTap,
                 onLongPress = { epochDay ->
                     onDebugDayJump(epochDay)
                     val date = LocalDate.ofEpochDay(epochDay)
@@ -210,6 +214,7 @@ private fun BiomeHeader(
 @Composable
 private fun CalendarBox(
     calendarDays: List<CalendarDay>,
+    onTap: (Long) -> Unit,
     onLongPress: (Long) -> Unit,
 ) {
     Box(modifier = Modifier.fillMaxWidth()) {
@@ -268,6 +273,7 @@ private fun CalendarBox(
                         } else {
                             DayCell(
                                 day = day,
+                                onTap = onTap,
                                 onLongPress = onLongPress,
                                 modifier = Modifier.weight(1f),
                             )
@@ -288,6 +294,7 @@ private fun CalendarBox(
 @Composable
 private fun DayCell(
     day: CalendarDay,
+    onTap: (Long) -> Unit,
     onLongPress: (Long) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -299,7 +306,7 @@ private fun DayCell(
             .background(bg, RectangleShape)
             .border(1.dp, border, RectangleShape)
             .combinedClickable(
-                onClick = {},
+                onClick = { onTap(day.epochDay) },
                 onLongClick = { onLongPress(day.epochDay) },
             ),
         contentAlignment = Alignment.Center,

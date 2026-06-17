@@ -9,6 +9,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
 import com.thecomingweek.ui.screen.battle.BattleScreen
 import com.thecomingweek.ui.screen.biome.BiomeScreen
+import com.thecomingweek.ui.screen.journal.JournalScreen
 import com.thecomingweek.ui.screen.boss.BossScreen
 import com.thecomingweek.ui.screen.hero.HeroScreen
 import com.thecomingweek.ui.screen.home.HomeScreen
@@ -54,6 +55,12 @@ fun TheComingWeekNavGraph(navController: NavHostController, modifier: Modifier =
             arguments = listOf(navArgument("stat") { type = NavType.StringType }),
         ) {
             StatQuestsScreen(navController)
+        }
+        composable(
+            Route.Journal.PATTERN,
+            arguments = listOf(navArgument("epochDay") { type = NavType.LongType }),
+        ) {
+            JournalScreen(navController)
         }
     }
 }

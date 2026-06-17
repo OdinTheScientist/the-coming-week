@@ -213,6 +213,39 @@ until the review returns no blockers.
   9. Tap does nothing (Stage 16).
   10. Schema v6, 6.json exported.
   11. Build passes, no warnings.
+
+- [ ] **Stage 16 — Day Journal**
+  Wire calendar day taps to a Journal screen. Past days show game
+  metadata snapshot. Today shows in-progress state. Future days
+  show editable note field. Notes persist via DayRecord upsert.
+
+  **Domain changes:** QuestSnapshot model added. DayRecord.quests
+  replaces questIds/questStatuses with List<QuestSnapshot>.
+  Schema → v7.
+
+  **New use cases:** GetDayRecordUseCase, SaveDayNoteUseCase.
+
+  **New route:** Route.Journal(epochDay). Wired from BiomeScreen
+  day cell tap. Back returns to calendar.
+
+  **JournalScreen** (ui/screen/journal/): three layouts by DayType
+  (PAST/TODAY/FUTURE). PAST shows quest snapshots + battle outcome
+  + HP delta + note. TODAY shows in-progress quests + note field.
+    FUTURE shows ritual empty state + note field auto-focused.
+    Note edits persist via SaveDayNoteUseCase.
+
+  Gate: all 11 acceptance criteria must pass before advancing.
+  1. Tapping calendar day navigates to Journal.
+  2. PAST days show quests, battle outcome, HP delta.
+  3. TODAY shows in-progress content.
+  4. FUTURE shows note field + ritual empty state.
+  5. Note field editable on all day types.
+  6. Notes persist across restarts.
+  7. Future day note creates minimal DayRecord.
+  8. Back returns to calendar.
+  9. Quest titles/actions from snapshot, not live lookup.
+  10. Schema v7, 7.json exported.
+  11. Build passes, no warnings.
 ---
 
 ## Deferred / post-MVP

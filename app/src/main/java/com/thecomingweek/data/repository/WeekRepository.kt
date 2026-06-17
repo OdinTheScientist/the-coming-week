@@ -16,6 +16,9 @@ class WeekRepository @Inject constructor(
     private val questDao: QuestDao,
 ) {
 
+    fun observeAll(): Flow<List<Week>> =
+        weekDao.observeAll().map { weeks -> weeks.map { it.toDomain() } }
+
     fun observeCurrent(): Flow<Week?> =
         weekDao.observeAll().map { weeks ->
             weeks.firstOrNull { !it.isResolved }?.toDomain()

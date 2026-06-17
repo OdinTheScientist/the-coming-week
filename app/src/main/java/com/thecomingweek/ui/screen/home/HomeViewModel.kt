@@ -12,6 +12,7 @@ import com.thecomingweek.domain.model.Quest
 import com.thecomingweek.domain.usecase.CompleteQuestUseCase
 import com.thecomingweek.domain.usecase.DrawDailyQuestsUseCase
 import com.thecomingweek.domain.usecase.RerollQuestUseCase
+import com.thecomingweek.debug.DebugClock
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -55,7 +56,7 @@ class HomeViewModel @Inject constructor(
         val isLoading: Boolean = true,
     )
 
-    private val epochDay: Long = LocalDate.now().toEpochDay()
+    private val epochDay: Long = DebugClock.epochDayOverride ?: LocalDate.now().toEpochDay()
 
     // Guards the daily draw so it fires at most once per day. Mutated only from
     // the single trigger collector below, where Flow collection is sequential,

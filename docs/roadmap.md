@@ -1,6 +1,6 @@
 # The Coming Week — Build Roadmap
 
-**Current stage:** Stage 15 — NOT STARTED
+**Current stage:** Stage 16 — NOT STARTED
 
 The MVP is being built in numbered stages. Each stage is a single
 focused commit (or small handful), independently reviewable, and ends
@@ -182,7 +182,7 @@ until the review returns no blockers.
   10. StatsScreen fully removed, no dead references.
   11. Build passes, no warnings.
 
-- [ ] **Stage 15 — Biome Calendar**
+- [x] **Stage 15 — Biome Calendar**
   Replace bare Biome screen with a 6-week calendar grid. Add DayRecord
   to data layer. Day cells styled by state. Biome pagination. ASCII art
   backdrop. Long-press debug day-jump. DayRecord written on battle resolve.

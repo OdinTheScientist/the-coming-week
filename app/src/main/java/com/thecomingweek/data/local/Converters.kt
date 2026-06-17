@@ -52,4 +52,11 @@ class Converters {
 
     @TypeConverter
     fun toBattleOutcome(value: String): BattleOutcome = BattleOutcome.valueOf(value)
+
+    @TypeConverter
+    fun fromNullableBattleOutcome(value: BattleOutcome?): String? = value?.name
+
+    @TypeConverter
+    fun toNullableBattleOutcome(value: String?): BattleOutcome? =
+        value?.let { BattleOutcome.valueOf(it) }
 }

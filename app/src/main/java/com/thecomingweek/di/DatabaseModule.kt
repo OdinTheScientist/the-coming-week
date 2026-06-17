@@ -9,6 +9,7 @@ import com.thecomingweek.data.local.dao.BattleResultDao
 import com.thecomingweek.data.local.dao.BiomeDao
 import com.thecomingweek.data.local.dao.BossDao
 import com.thecomingweek.data.local.dao.BuffDao
+import com.thecomingweek.data.local.dao.DayRecordDao
 import com.thecomingweek.data.local.dao.PlayerStateDao
 import com.thecomingweek.data.local.dao.QuestDao
 import com.thecomingweek.data.local.dao.StatDao
@@ -80,4 +81,7 @@ object DatabaseModule {
 
     @Provides
     fun provideBattleResultDao(db: AppDatabase): BattleResultDao = db.battleResultDao()
+
+    @Provides
+    fun provideDayRecordDao(db: AppDatabase): DayRecordDao = db.dayRecordDao()
 }

@@ -13,6 +13,9 @@ class BiomeRepository @Inject constructor(
     private val biomeDao: BiomeDao
 ) {
 
+    fun observeAll(): Flow<List<Biome>> =
+        biomeDao.observeAll().map { biomes -> biomes.sortedBy { it.id }.map { it.toDomain() } }
+
     // Highest id is the current descent: ResetRunUseCase always writes the new
     // biome at old.id + 1, so a fresh descent supersedes the retired one.
     fun observeCurrent(): Flow<Biome?> =

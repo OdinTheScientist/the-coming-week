@@ -1,6 +1,7 @@
 package com.thecomingweek.domain.usecase
 
 import com.thecomingweek.data.repository.BattleRepository
+import com.thecomingweek.data.repository.DayRecordRepository
 import com.thecomingweek.data.repository.PlayerStateRepository
 import com.thecomingweek.data.repository.QuestRepository
 import com.thecomingweek.data.repository.WeekRepository
@@ -8,6 +9,7 @@ import com.thecomingweek.domain.model.BattleOutcome
 import com.thecomingweek.domain.model.BattleResult
 import com.thecomingweek.domain.model.BattleRound
 import com.thecomingweek.domain.model.BattleType
+import com.thecomingweek.domain.model.DayRecord
 import com.thecomingweek.domain.model.QuestStatus
 import com.thecomingweek.domain.usecase.internal.enemyNameForTheme
 import kotlinx.coroutines.flow.first
@@ -21,6 +23,7 @@ class ResolveDailyBattleUseCase @Inject constructor(
     private val weekRepository: WeekRepository,
     private val questRepository: QuestRepository,
     private val battleRepository: BattleRepository,
+    private val dayRecordRepository: DayRecordRepository,
 ) {
 
     suspend operator fun invoke(epochDay: Long): BattleResult? {
@@ -83,8 +86,23 @@ class ResolveDailyBattleUseCase @Inject constructor(
             playerHpAfter = playerHp,
         )
 
+        val hpBefore = playerState.currentHp
         battleRepository.upsert(result)
         playerStateRepository.setCurrentHp(playerHp)
+
+        dayRecordRepository.upsert(
+            DayRecord(
+                epochDay = epochDay,
+                biomeId = week.biomeId,
+                weekId = week.id,
+                questIds = today.map { it.id },
+                questStatuses = today.associate { it.id to it.status },
+                battleOutcome = outcome,
+                hpBefore = hpBefore,
+                hpAfter = playerHp,
+                note = null,
+            )
+        )
 
         return result
     }

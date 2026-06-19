@@ -2,6 +2,7 @@ package com.thecomingweek.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Query
+import androidx.room.Transaction
 import androidx.room.Upsert
 import com.thecomingweek.data.local.entity.BuffEntity
 import kotlinx.coroutines.flow.Flow
@@ -20,4 +21,10 @@ interface BuffDao {
 
     @Query("DELETE FROM buffs WHERE expiresEpochDay <= :currentEpochDay")
     suspend fun deleteExpired(currentEpochDay: Long)
+
+    @Transaction
+    suspend fun pruneAndGetActive(epochDay: Long): List<BuffEntity> {
+        deleteExpired(epochDay)
+        return getActive(epochDay)
+    }
 }

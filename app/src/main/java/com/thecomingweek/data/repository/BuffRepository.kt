@@ -11,8 +11,35 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
+private val BUFF_DURATION: Map<BuffSource, Long> = mapOf(
+    BuffSource.QUEST_COMPLETED to 1L,
+    BuffSource.QUEST_MISSED    to 1L,
+    BuffSource.QUOTA_MET       to 7L,
+    BuffSource.QUOTA_MISSED    to 7L,
+    BuffSource.BOSS_WON        to 7L,
+    BuffSource.BOSS_LOST       to 7L,
+)
+
+private val BUFF_MODIFIER: Map<BuffSource, Int> = mapOf(
+    BuffSource.QUEST_COMPLETED to  1,
+    BuffSource.QUEST_MISSED    to -1,
+    BuffSource.QUOTA_MET       to  2,
+    BuffSource.QUOTA_MISSED    to -2,
+    BuffSource.BOSS_WON        to  3,
+    BuffSource.BOSS_LOST       to -3,
+)
+
+private val BUFF_NAME: Map<BuffSource, String> = mapOf(
+    BuffSource.QUEST_COMPLETED to "Rite Fulfilled",
+    BuffSource.QUEST_MISSED    to "Rite Neglected",
+    BuffSource.QUOTA_MET       to "The Week Answered",
+    BuffSource.QUOTA_MISSED    to "The Week Unanswered",
+    BuffSource.BOSS_WON        to "Trial Victorious",
+    BuffSource.BOSS_LOST       to "Trial Broken",
+)
+
 class BuffRepository @Inject constructor(
-    private val buffDao: BuffDao
+    private val buffDao: BuffDao,
 ) {
 
     fun observeActive(epochDay: Long): Flow<List<Buff>> =
@@ -20,32 +47,22 @@ class BuffRepository @Inject constructor(
             entities.filter { it.expiresEpochDay > epochDay }.map { it.toDomain() }
         }
 
-    // TODO: buff lifecycle is unimplemented and currently BROKEN. Callers pass
-    // the current epochDay as `expiresEpochDay`, but `observeActive` filters for
-    // `expiresEpochDay > epochDay` — so every granted buff is already expired the
-    // moment it is written. Buffs are dead on arrival and never surface as active.
-    // Duration is not modeled at all, and `modifier` is a hardcoded 1 that does
-    // not yet mean anything. Before buffs are displayed or consumed anywhere
-    // (Home's activeBuffs list, and combat resolution at Stage 10 — daily battle
-    // and the weekly boss), the buff lifecycle needs a design pass: how long a
-    // buff lasts, what each buff actually modifies, and stacking rules.
-    // Returns the granted Buff so callers that want to surface it (e.g. the
-    // Trial's TrialResult) can, without rebuilding it. The lifecycle is still
-    // BROKEN per the note above — returning the value does not change that; the
-    // buff is written already-expired and will not show as active.
-    suspend fun grant(source: BuffSource, stat: StatType, expiresEpochDay: Long): Buff {
+    suspend fun pruneAndGetActive(epochDay: Long): List<Buff> =
+        buffDao.pruneAndGetActive(epochDay).map { it.toDomain() }
+
+    suspend fun grant(source: BuffSource, stat: StatType, epochDay: Long): Buff {
         val polarity = when (source) {
             BuffSource.QUEST_COMPLETED, BuffSource.QUOTA_MET, BuffSource.BOSS_WON -> BuffPolarity.BUFF
             BuffSource.QUEST_MISSED, BuffSource.QUOTA_MISSED, BuffSource.BOSS_LOST -> BuffPolarity.DEBUFF
         }
         val buff = Buff(
-            id = System.currentTimeMillis(),
-            name = source.name,
+            id = kotlin.random.Random.nextLong(),
+            name = BUFF_NAME.getValue(source),
             polarity = polarity,
             statAffected = stat,
-            modifier = 1,
-            expiresEpochDay = expiresEpochDay,
-            source = source
+            modifier = BUFF_MODIFIER.getValue(source),
+            expiresEpochDay = epochDay + BUFF_DURATION.getValue(source),
+            source = source,
         )
         buffDao.upsert(buff.toEntity())
         return buff

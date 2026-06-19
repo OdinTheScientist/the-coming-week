@@ -1,6 +1,7 @@
 package com.thecomingweek.domain.usecase
 
 import com.thecomingweek.data.repository.BattleRepository
+import com.thecomingweek.data.repository.BuffRepository
 import com.thecomingweek.data.repository.DayRecordRepository
 import com.thecomingweek.data.repository.PlayerStateRepository
 import com.thecomingweek.data.repository.QuestRepository
@@ -9,6 +10,7 @@ import com.thecomingweek.domain.model.BattleOutcome
 import com.thecomingweek.domain.model.BattleResult
 import com.thecomingweek.domain.model.BattleRound
 import com.thecomingweek.domain.model.BattleType
+import com.thecomingweek.domain.model.BuffSource
 import com.thecomingweek.domain.model.DayRecord
 import com.thecomingweek.domain.model.QuestSnapshot
 import com.thecomingweek.domain.model.QuestStatus
@@ -25,6 +27,7 @@ class ResolveDailyBattleUseCase @Inject constructor(
     private val questRepository: QuestRepository,
     private val battleRepository: BattleRepository,
     private val dayRecordRepository: DayRecordRepository,
+    private val buffRepository: BuffRepository,
 ) {
 
     suspend operator fun invoke(epochDay: Long): BattleResult? {
@@ -45,8 +48,15 @@ class ResolveDailyBattleUseCase @Inject constructor(
         val enemyMaxHp = 5 + week.weekNumber * 2
         val enemyAttack = (2 + week.weekNumber + enemyBonus).coerceAtLeast(0)
 
+        // Grant a debuff for each quest left unfinished at battle time.
+        today.filter { it.status != QuestStatus.COMPLETED }.forEach { q ->
+            buffRepository.grant(BuffSource.QUEST_MISSED, q.stat, epochDay)
+        }
+        val activeBuffs = buffRepository.pruneAndGetActive(epochDay)
+        val buffSum = activeBuffs.sumOf { it.modifier }
+
         val statThemeValue = playerState.stats.firstOrNull { it.type == week.statTheme }?.value ?: 0
-        val playerAttack = (3 + statThemeValue / 2 + playerBonus).coerceAtLeast(0)
+        val playerAttack = (3 + statThemeValue / 2 + playerBonus + buffSum).coerceAtLeast(0)
 
         val rounds = mutableListOf<BattleRound>()
         var playerHp = playerState.currentHp

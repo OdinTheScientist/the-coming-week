@@ -1,6 +1,6 @@
 # The Coming Week — Build Roadmap
 
-**Current stage:** Stage 16 — NOT STARTED
+**Current stage:** Stage 17 — NOT STARTED
 
 The MVP is being built in numbered stages. Each stage is a single
 focused commit (or small handful), independently reviewable, and ends
@@ -246,6 +246,36 @@ until the review returns no blockers.
   9. Quest titles/actions from snapshot, not live lookup.
   10. Schema v7, 7.json exported.
   11. Build passes, no warnings.
+
+- [ ] **Stage 17 — Buff Lifecycle Fix**
+  Fix buff grant duration, modifier values, ritual names, and
+  battle application. Buffs now surface as active on Hero page
+  and modify daily battle attack and boss Trial score.
+
+  **BuffRepository.grant():** duration map per source (1 day for
+  quest buffs, 7 days for quota/boss buffs). Modifier values per
+  source. Ritual names replace raw enum strings.
+
+  **ResolveDailyBattleUseCase:** active buffs fetched and summed
+  into playerAttack. QUEST_MISSED debuff granted for unfinished
+  quests at battle time.
+
+  **ResolveWeeklyBossUseCase:** active buffs summed into player
+  score.
+
+  **HeroViewModel:** observeActive(epochDay) replaces observeAll().
+
+  Gate: all 10 acceptance criteria must pass before advancing.
+  1. Quest completion buff visible on Hero for 1 day.
+  2. Missed quest debuff granted at battle time.
+  3. Chip names show ritual copy.
+  4. Active buffs modify daily battle attack.
+  5. Active buffs modify boss Trial score.
+  6. Expired buffs pruned, not shown.
+  7. Boss buffs persist 7 days.
+  8. Quota buffs apply correctly.
+  9. Hero chip row empty when no active buffs.
+  10. Build passes, no warnings.
 ---
 
 ## Deferred / post-MVP

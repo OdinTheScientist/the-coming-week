@@ -10,6 +10,7 @@ import com.thecomingweek.domain.model.Boss
 import com.thecomingweek.domain.model.BuffSource
 import com.thecomingweek.domain.model.TrialResult
 import com.thecomingweek.domain.usecase.internal.playerScore
+import java.time.LocalDate
 import javax.inject.Inject
 
 // The Trial, resolved. This is now the canonical thing that turns the week:
@@ -36,11 +37,13 @@ class ResolveWeeklyBossUseCase @Inject constructor(
 ) {
 
     suspend operator fun invoke(boss: Boss): TrialResult {
+        val epochDay = LocalDate.now().toEpochDay()
         val finalDifficulty = calculateBossDifficulty(boss)
 
         val week = weekRepository.current()
         val statSum = statRepository.all().sumOf { it.value }
-        val quotasMet = week?.let { checkWeeklyQuotas(it).progress.count { q -> q.met } } ?: 0
+        val quotaReport = week?.let { checkWeeklyQuotas(it) }
+        val quotasMet = quotaReport?.progress?.count { it.met } ?: 0
 
         // A body broken by the week's battles still stands for the Trial — but
         // diminished. Set to 1 HP (not 0: the Trial is not a battle the player
@@ -50,9 +53,14 @@ class ResolveWeeklyBossUseCase @Inject constructor(
         if (wounded) {
             playerStateRepository.setCurrentHp(1)
         }
+
+        // Active buffs accumulated over the week modify the player's Trial score.
+        val activeBuffs = buffRepository.pruneAndGetActive(epochDay)
+        val buffSum = activeBuffs.sumOf { it.modifier }
+
         // The Trial has no attack stat to dock; the roadmap's "-2 attack while
         // wounded" is deliberately applied here as a flat -2 to score instead.
-        val score = playerScore(statSum, quotasMet) - if (wounded) 2 else 0
+        val score = playerScore(statSum, quotasMet) - (if (wounded) 2 else 0) + buffSum
 
         val defeated = score >= finalDifficulty
 
@@ -62,12 +70,17 @@ class ResolveWeeklyBossUseCase @Inject constructor(
             boss.copy(finalDifficulty = finalDifficulty, defeated = defeated),
         )
 
-        // A loss marks next week. Buff lifecycle is known-broken (see
-        // BuffRepository) — we grant anyway and let the documented breakage
-        // stand; the debuff will not actually surface as active yet.
+        // Grant quota result buffs — they carry into next week's battles.
+        quotaReport?.progress?.forEach { q ->
+            val source = if (q.met) BuffSource.QUOTA_MET else BuffSource.QUOTA_MISSED
+            buffRepository.grant(source, q.stat, epochDay)
+        }
+
+        // Grant boss result buff and capture the debuff for TrialResult display.
         val debuff = if (!defeated && week != null) {
-            buffRepository.grant(BuffSource.BOSS_LOST, week.statTheme, week.endEpochDay + 7)
+            buffRepository.grant(BuffSource.BOSS_LOST, week.statTheme, epochDay)
         } else {
+            if (week != null) buffRepository.grant(BuffSource.BOSS_WON, week.statTheme, epochDay)
             null
         }
 
